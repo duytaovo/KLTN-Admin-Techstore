@@ -1,0 +1,63 @@
+// @use '../../assets/styles/' as *;
+
+.data-table {
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 30px;
+  position: relative;
+
+  .data-table_container {
+    // background-color: white;
+    // height: 650px;
+    width: 100%;
+    .css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root {
+      // color: white;
+      font-size: 17;
+      // &:hover{
+      //   background-color: rgb(244, 246, 248);
+      // }
+    }
+    .css-imf0nl-MuiDataGrid-root {
+      border: none !important;
+      font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+      font-size: 15px;
+    }
+
+    .MuiDataGrid-columnHeaders {
+      border-radius: 5px;
+      // background-color: rgb(244, 246, 248);
+      // color: white;
+      // color: rgb(33, 43, 54);
+      // background-color: $;
+      font-size: 16;
+      box-shadow: none;
+    }
+  }
+
+  h2 {
+    padding: 20px 0px;
+    // font-family: $f-family;
+    // font-size: $fs-24;
+    font-weight: 400;
+  }
+
+  &__pagination {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    bottom: 10px;
+    right: 10px;
+    width: auto;
+  }
+
+  &__total-item {
+    font-weight: 400;
+    // font-family: $f-family-1;
+  }
+}
+
+.css-1knaqv7-MuiButtonBase-root-MuiButton-root {
+  // color: $primary-color !important;
+}
+

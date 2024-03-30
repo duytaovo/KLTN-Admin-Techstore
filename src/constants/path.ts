@@ -1,0 +1,30 @@
+const path = {
+  home: "/",
+  login: "/login",
+  logout: "/logout",
+  register: "/register",
+  search: "/search",
+  orders: "/orders",
+  users: "/users",
+  voucher: "/voucher",
+  voucherNew: "/voucher/new",
+  voucherDetail: "/voucher/detail/:id",
+  usersNew: "/users/new",
+  usersDetail: "/user/detail/:id",
+  products: "/products",
+  product: "/product",
+  productDetail: "/product/detail/:nameId",
+  productUpdate: "/product/detail/update/:nameId",
+  productNew: "/productNew",
+  categories: "/categories",
+  category: "/category/detail",
+  categoryNew: "/categoryNew",
+  brand: "/brand",
+  brandDetail: "/brand/detail/:id",
+  brandNew: "/brandNew",
+  feedback: "/feedback",
+  feedbackDetail: "/feedback/:id",
+} as const;
+
+export default path;
+
