@@ -26,7 +26,9 @@ const ProductCard = ({ product, category, docquyen }: Props) => {
     <Link
       to={`${`/${category}/detail`}/${generateNameId({
         name: product.name,
-        id: product.id.toString(),
+        slug: product.slug,
+        idCategory: 1,
+        id: product?.productId?.toString(),
       })}`}
     >
       <div className={styles.card}>

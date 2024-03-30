@@ -18,7 +18,9 @@ const ItemSearch = ({ item, handePopup }: any) => {
           className="flex items-center justify-between gap-5 p-3"
           to={`${`/${item.slug}/detail`}/${generateNameId({
             name: item.name,
-            id: item.id.toString(),
+            slug: item.slug,
+            idCategory: 1,
+            id: item?.productId?.toString(),
           })}`}
         >
           <div className="w-[55px] h-[55px] rounded-lg">

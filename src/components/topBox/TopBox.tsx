@@ -1,12 +1,12 @@
 import "./topBox.scss";
-import { topDealUsers } from "../../data";
+// import { topDealUsers } from "../../data";
 
 const TopBox = () => {
   return (
     <div className="topBox">
       <h2 className="text-3xl mb-2">Giao dịch hàng đầu</h2>
       <div className="list">
-        {topDealUsers.map((user) => (
+        {/* {topDealUsers.map((user) => (
           <div className="listItem" key={user.id}>
             <div className="user">
               <img src={user.img} alt="" />
@@ -17,7 +17,7 @@ const TopBox = () => {
             </div>
             <span className="amount">{user.amount}k</span>
           </div>
-        ))}
+        ))} */}
       </div>
     </div>
   );

@@ -3,14 +3,7 @@ import BigChartBox from "src/components/bigChartBox/BigChartBox";
 import ChartBox from "src/components/chartBox/ChartBox";
 import PieChartBox from "src/components/pieCartBox/PieChartBox";
 import TopBox from "src/components/topBox/TopBox";
-import {
-  barChartBoxRevenue,
-  barChartBoxVisit,
-  chartBoxConversion,
-  chartBoxProduct,
-  chartBoxRevenue,
-  chartBoxUser,
-} from "../../";
+
 import "./home.scss";
 
 const Home = () => {
@@ -19,7 +12,7 @@ const Home = () => {
       <div className="box box1">
         <TopBox />
       </div>
-      <div className="box box2">
+      {/* <div className="box box2">
         <ChartBox {...chartBoxUser} />
       </div>
       <div className="box box3">
@@ -42,7 +35,7 @@ const Home = () => {
       </div>
       <div className="box box9">
         <BarChartBox {...barChartBoxRevenue} />
-      </div>
+      </div> */}
     </div>
   );
 };

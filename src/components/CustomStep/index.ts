@@ -1,4 +1,4 @@
 import CustomStep from "./CustomStep";
 
-export default CustomStep();
+export default CustomStep;
 

@@ -13,10 +13,7 @@ import { ErrorResponse } from "src/types/utils.type";
 import { schemaBrand, schemaProductproduct } from "src/utils/rules";
 import { isAxiosUnprocessableEntityError } from "src/utils/utils";
 
-import Textarea from "src/components/Textarea";
-import { getCategorys } from "src/store/category/categorySlice";
 import { addBrand, getBrands } from "src/store/brand/brandSlice";
-import { addproduct, getproducts } from "src/store/product/productSlice";
 import InputFile from "src/components/InputFile";
 
 const normFile = (e: any) => {

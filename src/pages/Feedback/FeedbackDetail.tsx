@@ -45,23 +45,16 @@ const FeedbackDetail = ({ order, index, setOrderDetail }: Props) => {
             />
           </div>
           <div>
-            <p className="font-bold text-3xl">{order?.productName}</p>
-            <p className="font-medium text-2xl">{productDetail?.rearCamera}</p>
-            <p className="font-medium text-2xl">
-              Phụ: {productDetail?.frontCamera}
-            </p>
-            <p className="font-medium text-2xl">Chip: {productDetail?.chip}</p>
-            <p className="font-medium text-2xl">
-              Pin: {productDetail?.battery}
-            </p>
             <Button
               type="link"
               className="p-0"
               onClick={() =>
                 navigate(
                   `${`/${order.slug}/detail`}/${generateNameId({
-                    name: order.productName,
-                    id: order.id.toString(),
+                    name: order.name,
+                    slug: order.slug,
+                    idCategory: 1,
+                    id: order?.productId?.toString(),
                   })}`,
                 )
               }
