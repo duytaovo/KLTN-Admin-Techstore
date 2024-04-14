@@ -1,33 +1,263 @@
-import { faker } from "@faker-js/faker";
-
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Unstable_Grid2";
 import Typography from "@mui/material/Typography";
-import Iconify from "src/components/iconify";
-import AppTasks from "../app-tasks";
-import AppNewsUpdate from "../app-news-update";
-import AppOrderTimeline from "../app-order-timeline";
 import AppCurrentVisits from "../app-current-visits";
 import AppWebsiteVisits from "../app-website-visits";
 import AppWidgetSummary from "../app-widget-summary";
-import AppTrafficBySite from "../app-traffic-by-site";
-import AppCurrentSubject from "../app-current-subject";
-import AppConversionRates from "../app-conversion-rates";
-
+import { LatestOrders } from "src/components/overview/latest-orders";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+import { useEffect, useState } from "react";
+import { Box } from "@mui/material";
+import { useAppDispatch, useAppSelector } from "src/hooks/useRedux";
+import { getStatistic } from "src/store/statistic/statisticSlice";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import dayjs from "dayjs";
+import type { DatePickerProps } from "antd";
+import { Button, DatePicker } from "antd";
+import { StatisticBestSeller } from "src/components/statistic";
 // ----------------------------------------------------------------------
+interface ProfitData {
+  year: number;
+  dayQuantity: number[];
+}
 
+const _statistic = {
+  totalProfits: 0,
+  totalNewUsers: 0,
+  totalItemOrders: 0,
+  totalItemOrdersPaid: 0,
+  //3 năm gần nhất
+  sales: {
+    years: [
+      { name: 2022, data: [12, 14, 2, 47, 42, 15, 47, 75, 65, 19, 14, 22] },
+      { name: 2023, data: [12, 14, 2, 47, 42, 15, 47, 75, 65, 19, 14, 22] },
+      { name: 2024, data: [12, 14, 2, 47, 42, 15, 47, 75, 65, 19, 14, 22] },
+    ],
+  },
+  //phone,laptop,tablet,phukien this year
+  totalProducts: {
+    years: [
+      {
+        typeName: "Smartphone",
+        quantity: 6,
+      },
+    ],
+  },
+  productsBestSeller: [
+    {
+      yearMonth: "202404",
+      product: [
+        {
+          productId: 3,
+          productCode: "20247DSO0B7ZDNBE",
+          name: "Điện thoại iPhone 15 Pro 128GBb",
+          imageUrl:
+            "https://techstore2023.s3.ap-southeast-1.amazonaws.com/images/170934521615268aadee5-0970-472a-83bc-b363992e88c3-logonew.jpg",
+          totalOrder: 4,
+        },
+      ],
+    },
+  ],
+  lastOrders: [{}],
+};
 export default function AppView() {
+  const [valueYear, setValueYear] = useState("2024");
+  const _index: number =
+    Number(valueYear) === 2024
+      ? 0
+      : Number(valueYear) === 2023
+      ? 1
+      : Number(valueYear) === 2022
+      ? 2
+      : Number(valueYear) === 2020
+      ? 3
+      : Number(valueYear) === 2021
+      ? 4
+      : Number(valueYear) == 2020
+      ? 5
+      : 0;
+  const { statistic } = useAppSelector((state) => state.statistic);
+  const [statisticLocal, setStatisticLocal] = useState(_statistic);
+  console.log(statistic)
+  const dispatch = useAppDispatch();
+
+  const [startDate, setStartDate] = useState<Date | null>(
+    new Date(`${valueYear}-01-01T00:00:00`),
+  );
+  const [endDate, setEndDate] = useState<Date | null>(
+    new Date(`${valueYear}-04-30T00:00:00`),
+  );
+  const yearlyProfits = statistic?.profits?.map((yearProfit) => {
+    const { dayQuantity, year } = yearProfit;
+    const monthlyProfit = new Array(12).fill(0);
+
+    // Tính tổng lợi nhuận của từng tháng trong năm
+    for (let i = 0; i < 12; i++) {
+      for (let j = i; j < dayQuantity.length; j += 12) {
+        monthlyProfit[i] += dayQuantity[j];
+      }
+    }
+
+    return monthlyProfit;
+  });
+  const changeFormatSales = (yearlyProfits: any[]) => {
+    const res = yearlyProfits.map((yearlyProfit, index) => ({
+      name: 2024 - index, // Giả sử năm bắt đầu là 2022 và tăng dần
+      data: yearlyProfit,
+    }));
+
+    return res;
+  };
+
+  useEffect(() => {
+    setStatisticLocal((prevState) => ({
+      ...prevState,
+      sales: { years: changeFormatSales(yearlyProfits) },
+      totalProducts: { years: statistic.productTypes },
+      lastOrders: statistic.lastOrders,
+      productBestSellers: statistic.productsBestSeller,
+    }));
+  }, [statistic]);
+
+  useEffect(() => {
+    console.log("statisticLocal");
+    dispatch(getStatistic(""));
+    handleCalculateClick();
+  }, []);
+
+  const handleCalculateClick = () => {
+    const profitInRange = calculateInRange(
+      statistic.profits[_index],
+      startDate!,
+      endDate!,
+    );
+    const userInRange = calculateInRange(
+      statistic.users[_index],
+      startDate!,
+      endDate!,
+    );
+    const orderInRange = calculateInRange(
+      statistic.orders[_index],
+      startDate!,
+      endDate!,
+    );
+    const orderPaidInRange = calculateInRange(
+      statistic.ordersPaid[_index],
+      startDate!,
+      endDate!,
+    );
+
+    setStatisticLocal((prevState) => ({
+      ...prevState,
+      totalProfits: profitInRange,
+      totalNewUsers: userInRange,
+      totalItemOrders: orderInRange,
+      totalItemOrdersPaid: orderPaidInRange,
+    }));
+  };
+
+  const calculateInRange = (
+    data: ProfitData,
+    startDate: Date,
+    endDate: Date,
+  ): number => {
+    if (!startDate || !endDate) return 0;
+
+    const startDay = Math.floor(
+      (startDate.getTime() -
+        new Date(startDate.getFullYear(), 0, 0).getTime()) /
+        (1000 * 60 * 60 * 24),
+    );
+    const endDay = Math.floor(
+      (endDate.getTime() - new Date(endDate.getFullYear(), 0, 0).getTime()) /
+        (1000 * 60 * 60 * 24),
+    );
+    let totalProfit = 0;
+    for (let i = startDay; i <= endDay; i++) {
+      totalProfit += data.dayQuantity[i];
+    }
+
+    return totalProfit;
+  };
+
+  const onChangeDayStart: DatePickerProps["onChange"] = (date, dateString) => {
+    const _date = new Date(dateString + "T00:00:00");
+    setStartDate(_date);
+  };
+
+  const onChangeDayEnd: DatePickerProps["onChange"] = (date, dateString) => {
+    const _date = new Date(dateString);
+    setEndDate(_date);
+  };
+
+  const handleChange = (event: any) => {
+    setValueYear(event.target.value);
+    onChangeDayStart(null, `${event.target.value}-04-01T00:00:00`);
+    onChangeDayEnd(null, `${event.target.value}-04-30T00:00:00`);
+  };
+
   return (
     <Container maxWidth="xl">
-      <Typography variant="h4" sx={{ mb: 5 }}>
-        Hi, Welcome back 👋
-      </Typography>
+      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Typography variant="h4" sx={{ mb: 5 }}>
+          Hi, Welcome back 👋
+        </Typography>
+        <FormControl sx={{}}>
+          <div className="space-x-5 ml-5 mb-5">
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <InputLabel id="demo-simple-select-label">
+                Chọn năm thống kê
+              </InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={valueYear}
+                label="Năm"
+                // defaultValue={2024}
+                onChange={handleChange}
+              >
+                <MenuItem value={2026}>2026</MenuItem>
+                <MenuItem value={2025}>2025</MenuItem>
+                <MenuItem value={2024}>2024</MenuItem>
+                <MenuItem value={2023}>2023</MenuItem>
+                <MenuItem value={2022}>2022</MenuItem>
+                <MenuItem value={2021}>2021</MenuItem>
+                <MenuItem value={2020}>2020</MenuItem>
+              </Select>
 
+              <DatePicker
+                disabledDate={(current) =>
+                  current &&
+                  (current <= dayjs(`${valueYear}/01/01T00:00:00`) ||
+                    current >= dayjs(`${valueYear + 1}/1/1T00:00:00`))
+                }
+                onChange={onChangeDayStart}
+                defaultValue={dayjs(startDate)}
+              />
+
+              <DatePicker
+                disabledDate={(current) =>
+                  current &&
+                  (current <= dayjs(`${valueYear}/01/01T00:00:00`) ||
+                    current >= dayjs(`${valueYear + 1}/12/1T00:00:00`))
+                }
+                onChange={onChangeDayEnd}
+                defaultValue={dayjs(endDate)}
+              />
+              <Button onClick={handleCalculateClick}>Lọc</Button>
+            </LocalizationProvider>
+          </div>
+        </FormControl>
+      </Box>
       <Grid container spacing={3}>
         <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
-            title="Weekly Sales"
-            total={714000}
+            title="Tổng lợi nhuận"
+            total={statisticLocal.totalProfits}
             color="success"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
           />
@@ -35,8 +265,8 @@ export default function AppView() {
 
         <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
-            title="New Users"
-            total={1352831}
+            title="Tổng số khách hàng (đã đăng ký)"
+            total={statisticLocal.totalNewUsers}
             color="info"
             icon={
               <img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />
@@ -46,8 +276,8 @@ export default function AppView() {
 
         <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
-            title="Item Orders"
-            total={1723315}
+            title="Số đơn hàng"
+            total={statisticLocal.totalItemOrders}
             color="warning"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_buy.png" />}
           />
@@ -55,198 +285,59 @@ export default function AppView() {
 
         <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
-            title="Bug Reports"
-            total={234}
+            title="Số đơn hàng đã thanh toán "
+            total={statisticLocal.totalItemOrdersPaid}
             color="error"
             icon={
               <img alt="icon" src="/assets/icons/glass/ic_glass_message.png" />
             }
           />
         </Grid>
-
         <Grid xs={12} md={6} lg={8}>
           <AppWebsiteVisits
-            title="Website Visits"
-            subheader="(+43%) than last year"
+            title="Sales"
             chart={{
-              labels: [
-                "01/01/2003",
-                "02/01/2003",
-                "03/01/2003",
-                "04/01/2003",
-                "05/01/2003",
-                "06/01/2003",
-                "07/01/2003",
-                "08/01/2003",
-                "09/01/2003",
-                "10/01/2003",
-                "11/01/2003",
-              ],
               series: [
                 {
-                  name: "Team A",
+                  name: statisticLocal.sales.years[2].name,
                   type: "column",
                   fill: "solid",
-                  data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30],
+                  data: statisticLocal.sales.years[2].data,
                 },
                 {
-                  name: "Team B",
-                  type: "area",
+                  name: statisticLocal.sales.years[1].name,
+                  type: "column",
                   fill: "gradient",
-                  data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43],
+                  data: statisticLocal.sales.years[1].data,
                 },
                 {
-                  name: "Team C",
-                  type: "line",
+                  name: statisticLocal.sales.years[0].name,
+                  type: "column",
                   fill: "solid",
-                  data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39],
+                  data: statisticLocal.sales.years[0].data,
                 },
               ],
             }}
           />
         </Grid>
-
         <Grid xs={12} md={6} lg={4}>
           <AppCurrentVisits
-            title="Current Visits"
+            title="Product"
             chart={{
-              series: [
-                { label: "America", value: 4344 },
-                { label: "Asia", value: 5435 },
-                { label: "Europe", value: 1443 },
-                { label: "Africa", value: 4443 },
-              ],
+              series: statisticLocal.totalProducts.years,
             }}
           />
         </Grid>
 
-        <Grid xs={12} md={6} lg={8}>
-          <AppConversionRates
-            title="Conversion Rates"
-            subheader="(+43%) than last year"
-            chart={{
-              series: [
-                { label: "Italy", value: 400 },
-                { label: "Japan", value: 430 },
-                { label: "China", value: 448 },
-                { label: "Canada", value: 470 },
-                { label: "France", value: 540 },
-                { label: "Germany", value: 580 },
-                { label: "South Korea", value: 690 },
-                { label: "Netherlands", value: 1100 },
-                { label: "United States", value: 1200 },
-                { label: "United Kingdom", value: 1380 },
-              ],
-            }}
+        <Grid xs={12} md={6} lg={6}>
+          <StatisticBestSeller
+            dataBestSeller={statistic.productsBestSeller}
           />
         </Grid>
-
-        <Grid xs={12} md={6} lg={4}>
-          <AppCurrentSubject
-            title="Current Subject"
-            chart={{
-              categories: [
-                "English",
-                "History",
-                "Physics",
-                "Geography",
-                "Chinese",
-                "Math",
-              ],
-              series: [
-                { name: "Series 1", data: [80, 50, 30, 40, 100, 20] },
-                { name: "Series 2", data: [20, 30, 40, 80, 20, 80] },
-                { name: "Series 3", data: [44, 76, 78, 13, 43, 10] },
-              ],
-            }}
-          />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={8}>
-          <AppNewsUpdate
-            title="News Update"
-            list={[...Array(5)].map((_, index) => ({
-              id: faker.string.uuid(),
-              title: faker.person.jobTitle(),
-              description: faker.commerce.productDescription(),
-              image: `/assets/images/covers/cover_${index + 1}.jpg`,
-              postedAt: faker.date.recent(),
-            }))}
-          />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={4}>
-          <AppOrderTimeline
-            title="Order Timeline"
-            list={[...Array(5)].map((_, index) => ({
-              id: faker.string.uuid(),
-              title: [
-                "1983, orders, $4220",
-                "12 Invoices have been paid",
-                "Order #37745 from September",
-                "New order placed #XF-2356",
-                "New order placed #XF-2346",
-              ][index],
-              type: `order${index + 1}`,
-              time: faker.date.past(),
-            }))}
-          />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={4}>
-          <AppTrafficBySite
-            title="Traffic by Site"
-            list={[
-              {
-                name: "FaceBook",
-                value: 323234,
-                icon: (
-                  <Iconify
-                    icon="eva:facebook-fill"
-                    color="#1877F2"
-                    width={32}
-                  />
-                ),
-              },
-              {
-                name: "Google",
-                value: 341212,
-                icon: (
-                  <Iconify icon="eva:google-fill" color="#DF3E30" width={32} />
-                ),
-              },
-              {
-                name: "Linkedin",
-                value: 411213,
-                icon: (
-                  <Iconify
-                    icon="eva:linkedin-fill"
-                    color="#006097"
-                    width={32}
-                  />
-                ),
-              },
-              {
-                name: "Twitter",
-                value: 443232,
-                icon: (
-                  <Iconify icon="eva:twitter-fill" color="#1C9CEA" width={32} />
-                ),
-              },
-            ]}
-          />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={8}>
-          <AppTasks
-            title="Tasks"
-            list={[
-              { id: "1", name: "Create FireStone Logo" },
-              { id: "2", name: "Add SCSS and JS files if required" },
-              { id: "3", name: "Stakeholder Meeting" },
-              { id: "4", name: "Scoping & Estimations" },
-              { id: "5", name: "Sprint Showcase" },
-            ]}
+        <Grid xs={12} md={6} lg={6}>
+          <LatestOrders
+            orders={statisticLocal.lastOrders}
+            sx={{ height: "100%" }}
           />
         </Grid>
       </Grid>

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-
 import Card from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
 import Table from "@mui/material/Table";
@@ -10,10 +9,8 @@ import Typography from "@mui/material/Typography";
 import TableContainer from "@mui/material/TableContainer";
 import TablePagination from "@mui/material/TablePagination";
 import path from "src/constants/path";
-
 import Iconify from "src/components/iconify";
 import Scrollbar from "src/components/scrollbar";
-
 import TableNoData from "../table-no-data";
 import VoucherTableRow from "../voucher-table-row";
 import VoucherTableHead from "../voucher-table-head";
@@ -23,6 +20,7 @@ import { emptyRows, applyFilter, getComparator } from "../utils";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getVouchers } from "src/store/voucher/voucherSlice";
+import Skeleton from "src/components/Skeleton";
 
 // ----------------------------------------------------------------------
 
@@ -41,6 +39,7 @@ export default function VoucherPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { voucher } = useSelector((state) => state.voucher);
+  const loading = useSelector((state) => state.loading.loading);
 
   useEffect(() => {
     dispatch(getVouchers({ pageNumber: page }));
@@ -131,52 +130,60 @@ export default function VoucherPage() {
 
         <Scrollbar>
           <TableContainer sx={{ overflow: "unset" }}>
-            <Table sx={{ minWidth: 800 }}>
-              <VoucherTableHead
-                order={order}
-                orderBy={orderBy}
-                rowCount={vouchers?.length}
-                numSelected={selected.length}
-                onRequestSort={handleSort}
-                onSelectAllClick={handleSelectAllClick}
-                headLabel={[
-                  { id: "name", label: "Tên" },
-                  { id: "code", label: "Mã" },
-                  { id: "startDate", label: "Ngày bắt đầu" },
-                  { id: "endDate", label: "Ngày kết thúc" },
-                  { id: "price", label: "Giá" },
-                  { id: "discount", label: "Giảm giá" },
-                  { id: "gift", label: "Quà" },
-                  { id: "" },
-                ]}
+            {loading > 0 ? (
+              <Skeleton
+                styles={{ height: "50vh" }}
+                children={undefined}
+                className={undefined}
               />
-              <TableBody>
-                {dataFiltered
-                  // ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  ?.map((row) => (
-                    <VoucherTableRow
-                      key={row.id}
-                      id={row.id}
-                      name={row.name}
-                      code={row.code}
-                      startDate={row.startDate}
-                      endDate={row.endDate}
-                      price={row.price}
-                      discount={row.discount}
-                      gift={row.gift}
-                      selected={selected.indexOf(row.name) !== -1}
-                      handleClick={(event) => handleClick(event, row.name)}
-                    />
-                  ))}
-
-                <TableEmptyRows
-                  height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, voucher?.length)}
+            ) : (
+              <Table sx={{ minWidth: 800 }}>
+                <VoucherTableHead
+                  order={order}
+                  orderBy={orderBy}
+                  rowCount={vouchers?.length}
+                  numSelected={selected.length}
+                  onRequestSort={handleSort}
+                  onSelectAllClick={handleSelectAllClick}
+                  headLabel={[
+                    { id: "name", label: "Tên" },
+                    { id: "code", label: "Mã" },
+                    { id: "startDate", label: "Ngày bắt đầu" },
+                    { id: "endDate", label: "Ngày kết thúc" },
+                    { id: "price", label: "Giá" },
+                    { id: "discount", label: "Giảm giá" },
+                    { id: "gift", label: "Quà" },
+                    { id: "" },
+                  ]}
                 />
+                <TableBody>
+                  {dataFiltered
+                    // ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    ?.map((row) => (
+                      <VoucherTableRow
+                        key={row.id}
+                        id={row.id}
+                        name={row.name}
+                        code={row.code}
+                        startDate={row.startDate}
+                        endDate={row.endDate}
+                        price={row.price}
+                        discount={row.discount}
+                        gift={row.gift}
+                        selected={selected.indexOf(row.name) !== -1}
+                        handleClick={(event) => handleClick(event, row.name)}
+                      />
+                    ))}
 
-                {notFound && <TableNoData query={filterName} />}
-              </TableBody>
-            </Table>
+                  <TableEmptyRows
+                    height={77}
+                    emptyRows={emptyRows(page, rowsPerPage, voucher?.length)}
+                  />
+
+                  {notFound && <TableNoData query={filterName} />}
+                </TableBody>
+              </Table>
+            )}
           </TableContainer>
         </Scrollbar>
 

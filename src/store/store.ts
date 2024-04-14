@@ -17,6 +17,7 @@ import voucherReducer from "./voucher/voucherSlice";
 import productReducer from "./product/productSlice";
 import entityReducer from "./entity/entitySlice";
 import appReducer from "src/app.slice";
+import statisticReducer from "./statistic/statisticSlice";
 
 export const store = configureStore({
   reducer: {
@@ -33,6 +34,7 @@ export const store = configureStore({
     depot: depotReducer,
     filter: filterReducer,
     search: searchSlice,
+    statistic: statisticReducer,
   },
   devTools: process.env.NODE_ENV === "development",
   middleware: (getDefaultMiddleware) => [

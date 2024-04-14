@@ -6,6 +6,7 @@ import NewVoucher from "src/pages/Voucher/view/NewVoucher";
 import UpdateVoucher from "src/pages/Voucher/view/UpdateVoucher";
 import { BrandView } from "src/pages/brand-new/view";
 import { AppView } from "src/pages/overview/view";
+// import PageStatistic from "src/pages/statistic/PageStatistic";
 import { UserView } from "src/pages/user/view";
 
 const TableFeedback = lazy(() => import("src/pages/Feedback"));
@@ -38,7 +39,10 @@ export const routeMain = [
     path: path.home,
     Component: AppView,
   },
-
+  // {
+  //   path: path.statics,
+  //   Component: PageStatistic,
+  // },
   {
     path: path.orders,
     Component: Orders,

@@ -38,26 +38,6 @@ export const deleteUser = createAsyncThunk(
   payloadCreator(authApi.deleteUser),
 );
 
-interface DecodedToken {
-  userId: number;
-  permissions: number;
-  username: string;
-  userUuid: string;
-}
-
-type User = {
-  id: number;
-  fullName: null;
-  phoneNumber: string;
-  password: string;
-  email: string;
-  gender: null;
-  address: string;
-  imageUrl: null;
-  level: number;
-  levelString: string;
-};
-
 interface IUser {
   name: string;
   accessToken: string;

@@ -504,7 +504,7 @@ const Order = ({ title }: { title?: string }) => {
                             id={_order.id}
                             onClick={() => handleAccept(_order.id)}
                             className={clsx(
-                              "bg-green-500 text-xl font-medium rounded-lg  text-white",
+                              "bg-green-500 text-xl font-medium rounded-lg  text-white m-2",
                             )}
                           >
                             Xác nhận
@@ -515,7 +515,7 @@ const Order = ({ title }: { title?: string }) => {
                             id={_order.id}
                             onClick={() => handleCancel(_order.id)}
                             className={clsx(
-                              "bg-red-500 text-xl font-medium rounded-lg  text-white",
+                              "bg-red-500 text-xl font-medium rounded-lg  text-white m-2",
                             )}
                           >
                             Hủy đơn
@@ -529,7 +529,7 @@ const Order = ({ title }: { title?: string }) => {
                             id={_order.id}
                             onClick={() => handleReject(_order.id)}
                             className={clsx(
-                              "bg-red-500 mx-2 text-xl font-medium rounded-lg  text-white",
+                              "bg-red-500 mx-2 text-xl font-medium rounded-lg  text-white m-2",
                             )}
                           >
                             Từ chối
@@ -540,7 +540,7 @@ const Order = ({ title }: { title?: string }) => {
                             id={_order.id}
                             onClick={() => handleApprove(_order.id)}
                             className={clsx(
-                              "bg-blue-500 text-xl font-medium rounded-lg  text-white",
+                              "bg-blue-500 text-xl font-medium rounded-lg  text-white m-2",
                             )}
                           >
                             Giao cho shipper
@@ -553,7 +553,7 @@ const Order = ({ title }: { title?: string }) => {
                           id={_order.id}
                           onClick={() => handleAcceptSuccess(_order.id)}
                           className={clsx(
-                            "bg-blue-500 text-xl font-medium rounded-lg  text-white",
+                            "bg-blue-500 text-xl font-medium rounded-lg  text-white m-2",
                           )}
                         >
                           Đã giao
@@ -566,7 +566,7 @@ const Order = ({ title }: { title?: string }) => {
                           id={_order.id}
                           // onClick={() => handleAccept(_order.id)}
                           className={clsx(
-                            "text-xl font-bold rounded-lg  text-white",
+                            "text-xl font-bold rounded-lg  text-white m-2",
                           )}
                         >
                           Chờ shipper xác nhận
@@ -577,7 +577,7 @@ const Order = ({ title }: { title?: string }) => {
                             id={_order.id}
                             onClick={() => handleAsign(_order.id)}
                             className={clsx(
-                              "bg-green-500 text-xl font-medium rounded-lg  text-white",
+                              "bg-green-500 text-xl font-medium rounded-lg  text-white m-2",
                               displayCancelBtn && "!bg-gray-100 !text-gray-700",
                             )}
                           >
@@ -591,7 +591,7 @@ const Order = ({ title }: { title?: string }) => {
                           id={_order.id}
                           // onClick={() => handleAccept(_order.id)}
                           className={clsx(
-                            "text-xl font-medium rounded-lg  text-white",
+                            "text-xl font-medium rounded-lg  text-white m-2",
                           )}
                         >
                           Đang giao hàng
@@ -603,7 +603,7 @@ const Order = ({ title }: { title?: string }) => {
                           id={_order.id}
                           // onClick={() => handleAccept(_order.id)}
                           className={clsx(
-                            "text-xl font-medium rounded-lg  text-white",
+                            "text-xl font-medium rounded-lg  text-white m-2",
                           )}
                         >
                           Đã giao cho shipper
@@ -615,7 +615,7 @@ const Order = ({ title }: { title?: string }) => {
                           id={_order.id}
                           // onClick={() => handleAccept(_order.id)}
                           className={clsx(
-                            "text-xl font-medium rounded-lg  text-white",
+                            "text-xl font-medium rounded-lg  text-white m-2",
                           )}
                         >
                           Đã giao thành công

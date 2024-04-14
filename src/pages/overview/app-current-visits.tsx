@@ -38,7 +38,7 @@ export default function AppCurrentVisits({
 
   const { colors, series, options } = chart;
 
-  const chartSeries = series.map((i: any) => i.value);
+  const chartSeries = series?.map((i: any) => i.quantity);
 
   const chartOptions = useChart({
     chart: {
@@ -47,7 +47,7 @@ export default function AppCurrentVisits({
       },
     },
     colors,
-    labels: series.map((i: any) => i.label),
+    labels: series?.map((i: any) => i.typeName),
     stroke: {
       colors: [theme.palette.background.paper],
     },

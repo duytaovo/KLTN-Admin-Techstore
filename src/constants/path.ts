@@ -24,6 +24,7 @@ const path = {
   brandNew: "/brandNew",
   feedback: "/feedback",
   feedbackDetail: "/feedback/:id",
+  statics: "/statics",
 } as const;
 
 export default path;

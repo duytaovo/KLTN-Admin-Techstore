@@ -1,7 +1,8 @@
 .skeleton {
   background-color: hsl(0deg 88.02% 7.42% / 10%);
   border-radius: 5px;
-  width: 100%;
+  margin: auto;
+  width: 98%;
   background-image: linear-gradient(
     10deg,
     transparent,
