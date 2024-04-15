@@ -46,8 +46,6 @@ interface Props {
   dataBestSeller: DataEntry[]; // Đảm bảo rằng props nhận được có đúng kiểu dữ liệu
 }
 export default function StatisticBestSeller({ dataBestSeller }: Props) {
-  console.log(dataBestSeller);
-  // const { t } = useLocales();
   const [valueYear, setValueYear] = useState("2024");
   const [valueMonth, setValueMonth] = useState("1");
   const dispatch = useDispatch();
