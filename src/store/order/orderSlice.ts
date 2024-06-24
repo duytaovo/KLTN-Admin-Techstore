@@ -17,6 +17,11 @@ export const putOrderSuccess = createAsyncThunk(
   payloadCreator(orderApi.putOrderSuccess),
 );
 
+export const putOrderFailed = createAsyncThunk(
+  "orders/putOrderFailed",
+  payloadCreator(orderApi.putOrderFailed),
+);
+
 export const putOrderDelivery = createAsyncThunk(
   "orders/putOrderDelivery",
   payloadCreator(orderApi.putOrderDelivery),

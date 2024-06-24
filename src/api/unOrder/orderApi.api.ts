@@ -1,9 +1,9 @@
 import { SuccessResponse } from "src/types/utils.type";
 import http from "src/utils/http";
 
-const URL = "/manage/order";
+const URL = "/manage/order/unOrder";
 
-export const orderApi = {
+export const unOrderApi = {
   getPurchases({ body, params }: any) {
     return http.post<SuccessResponse<any[]>>(`${URL}`, body, {
       params,
@@ -15,9 +15,6 @@ export const orderApi = {
   putOrderSuccess(id: any) {
     return http.put(`${URL}/success/${id}`);
   },
-  putOrderFailed(id: any) {
-    return http.put(`${URL}/failed/${id}`);
-  },
   putOrderDelivery(id: any) {
     return http.put(`${URL}/delivery/${id}`);
   },
@@ -27,8 +24,8 @@ export const orderApi = {
   putOrderCancel(id: any) {
     return http.put(`${URL}/cancel/${id}`);
   },
-  putOrderApprove(id: any) {
-    return http.put(`${URL}/approve/${id}`);
+  putUnOrderApprove({id,shipperId}: any) {
+    return http.put(`${URL}/approve/${id}?shipperId=${shipperId}`);
   },
   putOrderAssign({ id, shipperId }: { id: number; shipperId: number }) {
     return http.put(`${URL}/assign/${id}?shipperId=${shipperId}`);

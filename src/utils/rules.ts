@@ -249,8 +249,8 @@ export const schemaVoucher = yup.object({
   code: yup.string().required("Mã là bắt buộc"),
   startDate: yup.string(),
   endDate: yup.string(),
-  price: yup.number().required("Giá là bắt buộc"),
-  discount: yup.number().required("Giảm giá là bắt buộc"),
+  price: yup.number(),
+  discount: yup.number(),
   gift: yup.string(),
 });
 

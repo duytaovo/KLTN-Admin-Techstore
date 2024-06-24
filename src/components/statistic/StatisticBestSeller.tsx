@@ -1,6 +1,3 @@
-import { sentenceCase } from "change-case";
-// material
-import { useTheme } from "@material-ui/core/styles";
 import {
   Box,
   Card,
@@ -14,19 +11,12 @@ import {
   TableContainer,
 } from "@mui/material";
 // utils
-import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { CardHeader } from "@mui/material";
 import Scrollbar from "../scrollbar";
 import Label from "../label";
-import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-//
-// import { getFullAllProducts } from "../../redux/slices/productSlice";
-// import * as api from "../../api";
-
 // ----------------------------------------------------------------------
 
 interface Product {
@@ -46,32 +36,19 @@ interface Props {
   dataBestSeller: DataEntry[]; // Đảm bảo rằng props nhận được có đúng kiểu dữ liệu
 }
 export default function StatisticBestSeller({ dataBestSeller }: Props) {
+  console.log(dataBestSeller);
   const [valueYear, setValueYear] = useState("2024");
   const [valueMonth, setValueMonth] = useState("1");
-  const dispatch = useDispatch();
-  const productsList: [] = [];
-  //
-  // const { listFull: productsList } = useSelector((state) => state.product);
-  const theme = useTheme();
-  const [listProductBestSeller, setListProductBestSeller] = useState([]);
 
-  useEffect(() => {
-    // dispatch(getFullAllProducts());
-  }, [dispatch]);
-
-  useEffect(() => {
-    const getData = async () => {};
-  }, []);
   const handleChangeYear = (event: any) => {
     setValueYear(event.target.value);
   };
   const handleChangeMonth = (event: any) => {
     setValueMonth(event.target.value);
   };
-  console.log(valueYear + valueMonth);
-
-  const filteredData = dataBestSeller.filter((entry) =>
-    entry.yearMonth.startsWith(valueYear + "0" + valueMonth),
+  const inputYearMonth = `${valueYear}0${valueMonth}`;
+  const filteredData: any = dataBestSeller.find(
+    (entry) => entry.yearMonth === inputYearMonth,
   );
   console.log(filteredData);
   return (
@@ -128,32 +105,32 @@ export default function StatisticBestSeller({ dataBestSeller }: Props) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredData?.map((row, index) => (
+              {filteredData?.product?.map((row: any, index: number) => (
                 <TableRow key={index}>
                   <TableCell>
                     <Box sx={{ display: "flex", alignItems: "center" }}>
                       <Avatar
-                        alt={row.product[index]?.name}
-                        src={row.product[index]?.imageUrl}
+                        alt={row?.name}
+                        src={row?.imageUrl}
                       />
                       <Box sx={{ ml: 2 }}>
                         <Typography variant="subtitle2">
-                          {row.product[index]?.name}
+                          {row?.name}
                         </Typography>
                         {/* Đảm bảo rằng bạn hiển thị thông tin phù hợp ở đây */}
                         {/* Ví dụ: row.product[index]?.description */}
                       </Box>
                     </Box>
                   </TableCell>
-                  <TableCell>{row.product[index]?.totalOrder}</TableCell>
+                  <TableCell>{row?.totalOrder}</TableCell>
                   <TableCell align="right">
                     <Label
                       // variant={
                       //   theme.palette.mode === "light" ? "ghost" : "filled"
                       // }
-                      color={row.product[index]?.totalOrder && "primary"}
+                      color={row?.totalOrder && "primary"}
                     >
-                      {row.product[index]?.totalOrder}
+                      {row?.totalOrder}
                     </Label>
                   </TableCell>
                 </TableRow>

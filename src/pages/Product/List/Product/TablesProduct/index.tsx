@@ -20,6 +20,7 @@ import CustomStep from "src/components/CustomStep/CustomStep";
 import { toast } from "react-toastify";
 import { exportProduct, getProducts } from "src/store/product/productSlice";
 import Skeleton from "src/components/Skeleton";
+import { unwrapResult } from "@reduxjs/toolkit";
 
 const arrProduct = [
   {
@@ -306,13 +307,31 @@ const TableProduct: React.FC = () => {
   const handleChangeProduct = (event: SelectChangeEvent) => {
     setProduct(event.target.value as string);
   };
+  const downloadFile = async (url: string) => {
+    // Create a temporary link element
+    const link = document.createElement("a");
+    link.href = url;
 
+    // Specify the download attribute with a suggested filename
+    link.download = "downloaded_file";
+
+    // Append the link to the document
+    document.body.appendChild(link);
+
+    // Trigger a click on the link to start the download
+    link.click();
+
+    // Remove the link element from the document
+    document.body.removeChild(link);
+  };
   const exportToExcel = async () => {
-    if (productValue === "undefined") {
+    if (productValue === "" || undefined) {
       toast.error("Vui lòng chọn sản phẩm");
       return;
     } else {
-      dispatch(exportProduct(productValue));
+      const res = await dispatch(exportProduct(productValue));
+      unwrapResult(res);
+      downloadFile(res.payload?.data?.data);
     }
   };
 

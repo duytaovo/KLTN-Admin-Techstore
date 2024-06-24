@@ -42,10 +42,7 @@ const NewVoucher: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const [value, setValue] = useState<DateRange<Dayjs>>([
-    dayjs("2023-01-01"),
-    dayjs(),
-  ]);
+  const [value, setValue] = useState<DateRange<Dayjs>>([dayjs(), dayjs()]);
 
   useEffect(() => {
     reset();
@@ -58,7 +55,7 @@ const NewVoucher: React.FC = () => {
       startDate: value[0]?.format("YYYY-MM-DD") || null,
       endDate: value[1]?.format("YYYY-MM-DD") || null,
       price: data.price,
-      discount: data.discount,
+      discount: 0,
       gift: data.gift,
     });
 
@@ -95,7 +92,7 @@ const NewVoucher: React.FC = () => {
     <div className="bg-white shadow ">
       <h2 className="font-bold m-4 text-2xl">Thêm mã giảm giá</h2>
       <Form
-        labelCol={{ span: 4 }}
+        labelCol={{ span: 5 }}
         wrapperCol={{ span: 14 }}
         layout="horizontal"
         style={{ maxWidth: 700, padding: 6 }}
@@ -135,20 +132,20 @@ const NewVoucher: React.FC = () => {
             />
           </LocalizationProvider>
         </Form.Item>
-        <Form.Item label="Giá" name="price" rules={[{ required: true }]}>
+        <Form.Item label="Giá" name="price">
           <Input
             placeholder=""
             name="price"
             register={register}
             type="number"
             className=""
-            errorMessage={errors.price?.message}
+            // errorMessage={errors.price?.message}
           />
         </Form.Item>
-        <Form.Item
+        {/* <Form.Item
           label="Giảm giá"
           name="discount"
-          rules={[{ required: true }]}
+          // rules={[{ required: true }]}
         >
           <Input
             placeholder=""
@@ -156,10 +153,10 @@ const NewVoucher: React.FC = () => {
             register={register}
             type="number"
             className=""
-            errorMessage={errors.discount?.message}
+            // errorMessage={errors.discount?.message}
           />
-        </Form.Item>
-        <Form.Item label="Quà" name="gift">
+        </Form.Item> */}
+        {/* <Form.Item label="Quà" name="gift">
           <Input
             placeholder=""
             name="gift"
@@ -168,7 +165,7 @@ const NewVoucher: React.FC = () => {
             className=""
             // errorMessage={errors.gift?.message}
           />
-        </Form.Item>
+        </Form.Item> */}
         <div className="flex justify-start">
           <Form.Item label="" className="ml-[115px] mb-2">
             <Button className="w-[100px]" onClick={onSubmit}>

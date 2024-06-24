@@ -17,6 +17,9 @@ const authApi = {
   getUsers(params: any) {
     return http.get<SuccessResponse<any>>("/manage/user", { params });
   },
+  getShippers() {
+    return http.get(`/manage/shipper`);
+  },
   getDetailUser(params: any) {
     return http.get<SuccessResponse<any[]>>(`/manage/user/${params}`);
   },
@@ -29,3 +32,4 @@ const authApi = {
 };
 
 export default authApi;
+

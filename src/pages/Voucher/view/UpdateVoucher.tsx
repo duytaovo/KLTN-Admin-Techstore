@@ -50,7 +50,7 @@ const UpdateVoucher: React.FC = () => {
   const navigate = useNavigate();
 
   const [value, setValueDay] = useState<DateRange<Dayjs>>([
-    dayjs("2023-01-01"),
+    dayjs(),
     dayjs(),
   ]);
 
@@ -68,8 +68,8 @@ const UpdateVoucher: React.FC = () => {
     setValue("startDate", voucherDetail?.startDate);
     setValue("endDate", voucherDetail?.endDate);
     setValue("price", voucherDetail?.price);
-    setValue("discount", voucherDetail?.discount);
-    setValue("gift", voucherDetail?.gift);
+    // setValue("discount", voucherDetail?.discount);
+    // setValue("gift", voucherDetail?.gift);
   }, [voucherDetail]);
 
   const onSubmit = handleSubmit(async (data) => {
@@ -79,8 +79,8 @@ const UpdateVoucher: React.FC = () => {
       startDate: value[0]?.format("YYYY-MM-DD") || null,
       endDate: value[1]?.format("YYYY-MM-DD") || null,
       price: data.price,
-      discount: data.discount,
-      gift: data.gift,
+      discount: 0,
+      gift: null,
     });
 
     try {
@@ -166,7 +166,7 @@ const UpdateVoucher: React.FC = () => {
             errorMessage={errors.price?.message}
           />
         </Form.Item>
-        <Form.Item
+        {/* <Form.Item
           label="Giảm giá"
           name="discount"
           rules={[{ required: true }]}
@@ -179,8 +179,8 @@ const UpdateVoucher: React.FC = () => {
             className=""
             errorMessage={errors.discount?.message}
           />
-        </Form.Item>
-        <Form.Item label="Quà" name="gift">
+        </Form.Item> */}
+        {/* <Form.Item label="Quà" name="gift">
           <Input
             placeholder=""
             name="gift"
@@ -189,7 +189,7 @@ const UpdateVoucher: React.FC = () => {
             className=""
             // errorMessage={errors.gift?.message}
           />
-        </Form.Item>
+        </Form.Item> */}
         <div className="flex justify-start">
           <Form.Item label="" className="ml-[115px] mb-2">
             <Button className="w-[100px]" onClick={onSubmit}>

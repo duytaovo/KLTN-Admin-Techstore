@@ -65,7 +65,7 @@ export function LatestOrders({
             </TableRow>
           </TableHead>
           <TableBody>
-            {orders.slice(0, 5).map((order) => {
+            {orders.slice(0, 6).map((order) => {
               return (
                 <TableRow hover key={order.id}>
                   <TableCell>{order.userId}</TableCell>

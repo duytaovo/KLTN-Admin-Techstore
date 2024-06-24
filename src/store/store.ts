@@ -18,12 +18,15 @@ import productReducer from "./product/productSlice";
 import entityReducer from "./entity/entitySlice";
 import appReducer from "src/app.slice";
 import statisticReducer from "./statistic/statisticSlice";
+import manageShipperReducer from "./managerShipper/orderSlice";
+import unOrderReducer from "./returnChange/returnChangeSlice";
 
 export const store = configureStore({
   reducer: {
     loading: appReducer,
     user: userReducer,
     orders: orderReducer,
+    unOrders: unOrderReducer,
     comment: commentsReducer,
     product: productReducer,
     category: categoryReducer,
@@ -35,6 +38,7 @@ export const store = configureStore({
     filter: filterReducer,
     search: searchSlice,
     statistic: statisticReducer,
+    manageShipper: manageShipperReducer,
   },
   devTools: process.env.NODE_ENV === "development",
   middleware: (getDefaultMiddleware) => [

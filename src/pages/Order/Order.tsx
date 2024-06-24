@@ -13,10 +13,11 @@ import {
   putOrderAssign,
   putOrderCancel,
   putOrderConfirm,
+  putOrderFailed,
   putOrderReject,
   putOrderSuccess,
 } from "src/store/order/orderSlice";
-import { Button, Pagination } from "antd";
+import { Button, Modal, Pagination, Select } from "antd";
 import { toast } from "react-toastify";
 import { Helmet } from "react-helmet-async";
 import { DownloadOutlined } from "@ant-design/icons";
@@ -28,6 +29,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DateRange } from "@mui/x-date-pickers-pro";
 import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
 import Skeleton from "src/components/Skeleton";
+import { getShippers } from "src/store/managerShipper/orderSlice";
 const data = [
   {
     id: 1,
@@ -91,7 +93,6 @@ const Order = ({ title }: { title?: string }) => {
   const style = (text: string) => {
     switch (text) {
       case "Ordered":
-        return "text-blue-400 uppercase text-xl font-bold";
       case "Delivering":
         return "text-blue-400 uppercase text-xl font-bold";
       case "Cancelled":
@@ -100,9 +101,33 @@ const Order = ({ title }: { title?: string }) => {
         return "text-green-400 font-bold uppercase text-xl";
       case "Delivered":
         return "text-yellow-400 font-bold uppercase text-xl";
+      case "Requesting":
+      case "Working":
+      case "Change_Delivering":
+      case "Changed_Delivering":
+      case "Delivering_Fail_1":
+      case "Delivering_Fail_2":
+      case "Delivering_Fail_3":
+      case "Changed":
+      case "RequestChangeAndReturn":
+      case "ChangingAndReturning":
+      case "ChangedAndReturned":
+      case "RequestReturn":
+      case "Returning":
+      case "Returned":
+      case "Received":
+      case "Success":
+        return "text-blue-400 uppercase text-xl font-bold"; // Example class, replace with appropriate ones
+      case "Failed":
+        return "text-red-400 uppercase text-xl font-bold"; // Example class, replace with appropriate ones
+      default:
+        return "";
     }
   };
+
   const loading = useAppSelector((state) => state.loading.loading);
+  const [chooseShipper, setChooseShipper] = useState("");
+  const { shippers } = useAppSelector((state) => state.manageShipper);
 
   const [orderDetail, setOrderDetail] = useState({ index: -1, id: null });
   const dispatch = useAppDispatch();
@@ -113,6 +138,28 @@ const Order = ({ title }: { title?: string }) => {
     dayjs("2023-01-01"),
     dayjs(),
   ]);
+
+  const [open, setOpen] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [modalText, setModalText] = useState("Chọn shipper giao hàng");
+
+  const showModal = () => {
+    setOpen(true);
+  };
+
+  const handleOk = () => {
+    setModalText("The modal will be closed after two seconds");
+    setConfirmLoading(true);
+    setTimeout(() => {
+      setOpen(false);
+      setConfirmLoading(false);
+    }, 2000);
+  };
+
+  const handleCancelModal = () => {
+    console.log("Clicked cancel button");
+    setOpen(false);
+  };
 
   const [currentPage, setCurrentPage] = useState(0); // Trang hiện tại
   const pageSize = 10; // Số phần tử trên mỗi trang
@@ -152,11 +199,22 @@ const Order = ({ title }: { title?: string }) => {
   );
   useEffect(() => {
     const body = {
+      shippingId: null,
+      completeDateFrom: null,
+      completeDateTo: null,
+      productName: null,
+      customerName: null,
+      customerAddress: null,
       orderStatus: TrangthaidonhangNumber ? TrangthaidonhangNumber : [],
       buyDateFrom: value[0]?.format("YYYY-MM-DD") || null,
       buyDateTo: value[1]?.format("YYYY-MM-DD") || null,
       paymentStatus: PhuongthucthanhtoanNumber ? PhuongthucthanhtoanNumber : [],
     };
+    dispatch(
+      getShippers({
+        params: { pageNumber: currentPage, pageSize: 100 },
+      }),
+    );
     dispatch(
       getOrders({
         body: body,
@@ -171,10 +229,18 @@ const Order = ({ title }: { title?: string }) => {
       const data = await res.payload;
       if (data?.data?.code === 200) {
         const body = {
-          orderStatus: Trangthaidonhang ? Trangthaidonhang : [],
+          shippingId: null,
+          completeDateFrom: null,
+          completeDateTo: null,
+          productName: null,
+          customerName: null,
+          customerAddress: null,
+          orderStatus: TrangthaidonhangNumber ? TrangthaidonhangNumber : [],
           buyDateFrom: value[0]?.format("YYYY-MM-DD") || null,
           buyDateTo: value[1]?.format("YYYY-MM-DD") || null,
-          paymentStatus: Phuongthucthanhtoan ? Phuongthucthanhtoan : [],
+          paymentStatus: PhuongthucthanhtoanNumber
+            ? PhuongthucthanhtoanNumber
+            : [],
         };
         await dispatch(
           getOrders({
@@ -192,15 +258,25 @@ const Order = ({ title }: { title?: string }) => {
 
   const handleAsign = async (id: number) => {
     if (confirm("Bạn có muốn Gán đơn hàng cho shipper không?")) {
-      const res: any = await dispatch(putOrderAssign(id));
+      const res = await dispatch(
+        putOrderAssign({ id: id, shipperId: chooseShipper }),
+      );
       const data = res.payload;
 
       if (data?.data?.code === 200) {
         const body = {
-          orderStatus: Trangthaidonhang ? Trangthaidonhang : [],
+          shippingId: null,
+          completeDateFrom: null,
+          completeDateTo: null,
+          productName: null,
+          customerName: null,
+          customerAddress: null,
+          orderStatus: TrangthaidonhangNumber ? TrangthaidonhangNumber : [],
           buyDateFrom: value[0]?.format("YYYY-MM-DD") || null,
           buyDateTo: value[1]?.format("YYYY-MM-DD") || null,
-          paymentStatus: Phuongthucthanhtoan ? Phuongthucthanhtoan : [],
+          paymentStatus: PhuongthucthanhtoanNumber
+            ? PhuongthucthanhtoanNumber
+            : [],
         };
         await dispatch(
           getOrders({
@@ -222,10 +298,18 @@ const Order = ({ title }: { title?: string }) => {
       const data = res.payload;
       if (data?.data?.code === 200) {
         const body = {
-          orderStatus: Trangthaidonhang ? Trangthaidonhang : [],
+          shippingId: null,
+          completeDateFrom: null,
+          completeDateTo: null,
+          productName: null,
+          customerName: null,
+          customerAddress: null,
+          orderStatus: TrangthaidonhangNumber ? TrangthaidonhangNumber : [],
           buyDateFrom: value[0]?.format("YYYY-MM-DD") || null,
           buyDateTo: value[1]?.format("YYYY-MM-DD") || null,
-          paymentStatus: Phuongthucthanhtoan ? Phuongthucthanhtoan : [],
+          paymentStatus: PhuongthucthanhtoanNumber
+            ? PhuongthucthanhtoanNumber
+            : [],
         };
         await dispatch(
           getOrders({
@@ -247,10 +331,18 @@ const Order = ({ title }: { title?: string }) => {
       const data = res.payload;
       if (data?.data?.code === 200) {
         const body = {
-          orderStatus: Trangthaidonhang ? Trangthaidonhang : [],
+          shippingId: null,
+          completeDateFrom: null,
+          completeDateTo: null,
+          productName: null,
+          customerName: null,
+          customerAddress: null,
+          orderStatus: TrangthaidonhangNumber ? TrangthaidonhangNumber : [],
           buyDateFrom: value[0]?.format("YYYY-MM-DD") || null,
           buyDateTo: value[1]?.format("YYYY-MM-DD") || null,
-          paymentStatus: Phuongthucthanhtoan ? Phuongthucthanhtoan : [],
+          paymentStatus: PhuongthucthanhtoanNumber
+            ? PhuongthucthanhtoanNumber
+            : [],
         };
         await dispatch(
           getOrders({
@@ -272,10 +364,18 @@ const Order = ({ title }: { title?: string }) => {
       const data = res.payload;
       if (data?.data?.code === 200) {
         const body = {
-          orderStatus: Trangthaidonhang ? Trangthaidonhang : [],
+          shippingId: null,
+          completeDateFrom: null,
+          completeDateTo: null,
+          productName: null,
+          customerName: null,
+          customerAddress: null,
+          orderStatus: TrangthaidonhangNumber ? TrangthaidonhangNumber : [],
           buyDateFrom: value[0]?.format("YYYY-MM-DD") || null,
           buyDateTo: value[1]?.format("YYYY-MM-DD") || null,
-          paymentStatus: Phuongthucthanhtoan ? Phuongthucthanhtoan : [],
+          paymentStatus: PhuongthucthanhtoanNumber
+            ? PhuongthucthanhtoanNumber
+            : [],
         };
         await dispatch(
           getOrders({
@@ -292,15 +392,23 @@ const Order = ({ title }: { title?: string }) => {
   };
 
   const handleCancel = async (id: number) => {
-    if (confirm("Bạn có muốn Hủy đơn hàng không?")) {
+    if (confirm("Bạn có muốn hủy đơn hàng không?")) {
       const res: any = await dispatch(putOrderCancel(id));
       const data = res.payload;
       if (data?.data?.code === 200) {
         const body = {
-          orderStatus: Trangthaidonhang ? Trangthaidonhang : [],
+          shippingId: null,
+          completeDateFrom: null,
+          completeDateTo: null,
+          productName: null,
+          customerName: null,
+          customerAddress: null,
+          orderStatus: TrangthaidonhangNumber ? TrangthaidonhangNumber : [],
           buyDateFrom: value[0]?.format("YYYY-MM-DD") || null,
           buyDateTo: value[1]?.format("YYYY-MM-DD") || null,
-          paymentStatus: Phuongthucthanhtoan ? Phuongthucthanhtoan : [],
+          paymentStatus: PhuongthucthanhtoanNumber
+            ? PhuongthucthanhtoanNumber
+            : [],
         };
         await dispatch(
           getOrders({
@@ -309,6 +417,39 @@ const Order = ({ title }: { title?: string }) => {
           }),
         );
         toast.success("Hủy đơn thành công");
+      } else {
+        return null;
+        // toast.error(data.data.message);
+      }
+    }
+  };
+
+  const handleFailed = async (id: number) => {
+    if (confirm("Bạn có muốn xác nhận đơn hàng giao thất bại không?")) {
+      const res: any = await dispatch(putOrderFailed(id));
+      const data = res.payload;
+      if (data?.data?.code === 200) {
+        const body = {
+          shippingId: null,
+          completeDateFrom: null,
+          completeDateTo: null,
+          productName: null,
+          customerName: null,
+          customerAddress: null,
+          orderStatus: TrangthaidonhangNumber ? TrangthaidonhangNumber : [],
+          buyDateFrom: value[0]?.format("YYYY-MM-DD") || null,
+          buyDateTo: value[1]?.format("YYYY-MM-DD") || null,
+          paymentStatus: PhuongthucthanhtoanNumber
+            ? PhuongthucthanhtoanNumber
+            : [],
+        };
+        await dispatch(
+          getOrders({
+            body: body,
+            params: { pageNumber: currentPage, pageSize: 10 },
+          }),
+        );
+        toast.success("Xác nhận thành công");
       } else {
         return null;
         // toast.error(data.data.message);
@@ -484,13 +625,16 @@ const Order = ({ title }: { title?: string }) => {
                     <Table.Cell className={styleStatus}>
                       <div className="flex flex-grow justify-between text-xl font-bold">
                         {/* {stringStatus(_order.orderStatusString)} */}
-                        {_order.paymentStatusString === "Payment success" ? (
-                          <span className="text-white uppercase font-bold text-xl bg-green-500 p-2 rounded-lg">
-                            Đã thanh toán
+                        {_order.paymentStatusString === "Payment success" ||
+                        _order.orderStatus === 11 ||
+                        _order.orderStatus === 21 ||
+                        _order.orderStatus === 22 ? (
+                          <span className="text-white text-xl bg-green-500 p-2 rounded-lg">
+                            ĐÃ THANH TOÁN
                           </span>
                         ) : (
-                          <span className="text-white uppercase font-bold text-xl bg-gray-500 p-2 rounded-lg">
-                            Chưa thanh toán
+                          <span className="text-white text-xl bg-gray-500 p-2 rounded-lg">
+                            CHƯA THANH TOÁN
                           </span>
                         )}
                       </div>
@@ -546,7 +690,7 @@ const Order = ({ title }: { title?: string }) => {
                             Giao cho shipper
                           </Button>
                         </div>
-                      ) : _order.orderStatus === 6 ? (
+                      ) : _order.orderStatus === 21 ? (
                         <Button
                           type="link"
                           disabled={displayButtonDelivered}
@@ -556,7 +700,103 @@ const Order = ({ title }: { title?: string }) => {
                             "bg-blue-500 text-xl font-medium rounded-lg  text-white m-2",
                           )}
                         >
-                          Đã giao
+                          Đã giao thành công
+                        </Button>
+                      ) : _order.orderStatus === 6 ? (
+                        <Button
+                          type="link"
+                          disabled={true}
+                          id={_order.id}
+                          // onClick={() => handleFailed(_order.id)}
+                          className={clsx(
+                            "bg-blue-500 text-xl font-medium rounded-lg  text-white m-2",
+                          )}
+                        >
+                          Đơn đang chuyển cho shipper khác
+                        </Button>
+                      ) : _order.orderStatus === 7 ? (
+                        <Button
+                          type="link"
+                          disabled={true}
+                          id={_order.id}
+                          // onClick={() => handleFailed(_order.id)}
+                          className={clsx(
+                            "bg-blue-500 text-xl font-medium rounded-lg  text-white m-2",
+                          )}
+                        >
+                          Đơn đã chuyển cho shipper khác
+                        </Button>
+                      ) : _order.orderStatus === 8 ? (
+                        <Button
+                          type="link"
+                          disabled={true}
+                          id={_order.id}
+                          // onClick={() => handleFailed(_order.id)}
+                          className={clsx(
+                            "bg-blue-500 text-xl font-medium rounded-lg  text-white m-2",
+                          )}
+                        >
+                          Đơn giao thất bại lần 1
+                        </Button>
+                      ) : _order.orderStatus === 9 ? (
+                        <Button
+                          type="link"
+                          disabled={true}
+                          id={_order.id}
+                          // onClick={() => handleFailed(_order.id)}
+                          className={clsx(
+                            "bg-blue-500 text-xl font-medium rounded-lg  text-white m-2",
+                          )}
+                        >
+                          Đơn giao thất bại lần 2
+                        </Button>
+                      ) : _order.orderStatus === 10 ? (
+                        <Button
+                          type="link"
+                          disabled={true}
+                          id={_order.id}
+                          // onClick={() => handleFailed(_order.id)}
+                          className={clsx(
+                            "bg-blue-500 text-xl font-medium rounded-lg  text-white m-2",
+                          )}
+                        >
+                          Đơn giao thất bại lần 3
+                        </Button>
+                      ) : _order.orderStatus === 19 ? (
+                        <Button
+                          type="link"
+                          disabled={true}
+                          id={_order.id}
+                          // onClick={() => handleFailed(_order.id)}
+                          className={clsx(
+                            " text-xl font-medium rounded-lg  text-white m-2",
+                          )}
+                        >
+                          Đơn đang được shipper trả lại
+                        </Button>
+                      ) : _order.orderStatus === -1 ? (
+                        <Button
+                          type="link"
+                          disabled={true}
+                          id={_order.id}
+                          // onClick={() => handleFailed(_order.id)}
+                          className={clsx(
+                            "bg-red-300 text-xl font-medium rounded-lg  text-white m-2",
+                          )}
+                        >
+                          Đơn giao chính thức thất bại
+                        </Button>
+                      ) : _order.orderStatus === 20 ? (
+                        <Button
+                          type="link"
+                          disabled={displayButtonDelivered}
+                          id={_order.id}
+                          onClick={() => handleFailed(_order.id)}
+                          className={clsx(
+                            "bg-blue-500 text-xl font-medium rounded-lg  text-white m-2",
+                          )}
+                        >
+                          Xác nhận đã giao thất bại
                         </Button>
                       ) : _order.orderStatus === 2 ? (
                         <div>
@@ -575,7 +815,7 @@ const Order = ({ title }: { title?: string }) => {
                             type="link"
                             disabled={displayCancelBtn}
                             id={_order.id}
-                            onClick={() => handleAsign(_order.id)}
+                            onClick={showModal}
                             className={clsx(
                               "bg-green-500 text-xl font-medium rounded-lg  text-white m-2",
                               displayCancelBtn && "!bg-gray-100 !text-gray-700",
@@ -583,19 +823,55 @@ const Order = ({ title }: { title?: string }) => {
                           >
                             Gán cho shipper
                           </Button>
+                          <Modal
+                            title="Chọn shipper giao hàng"
+                            open={open}
+                            onOk={() => {
+                              handleAsign(_order.id);
+                            }}
+                            confirmLoading={confirmLoading}
+                            onCancel={handleCancelModal}
+                          >
+                            <p>{modalText}</p>
+                            <Select
+                              defaultValue={chooseShipper}
+                              style={{ width: 120 }}
+                              onChange={(itemValue) =>
+                                setChooseShipper(itemValue)
+                              }
+                              options={shippers.data.data.map((shipper) => ({
+                                value: shipper.id.toString(),
+                                label: shipper.fullName,
+                              }))}
+                            />
+                          </Modal>
+                          ;
                         </div>
                       ) : _order.orderStatus === 5 ? (
-                        <Button
-                          type="link"
-                          disabled={true}
-                          id={_order.id}
-                          // onClick={() => handleAccept(_order.id)}
-                          className={clsx(
-                            "text-xl font-medium rounded-lg  text-white m-2",
-                          )}
-                        >
-                          Đang giao hàng
-                        </Button>
+                        <>
+                          <Button
+                            type="link"
+                            disabled={true}
+                            id={_order.id}
+                            // onClick={() => handleAccept(_order.id)}
+                            className={clsx(
+                              "text-xl font-medium rounded-lg  text-white m-2",
+                            )}
+                          >
+                            Đang giao hàng
+                          </Button>
+                          <Button
+                            type="link"
+                            // disabled={displayCancelBtn}
+                            id={_order.id}
+                            onClick={() => handleCancel(_order.id)}
+                            className={clsx(
+                              "bg-red-500 text-xl font-medium rounded-lg  text-white m-2",
+                            )}
+                          >
+                            Hủy đơn
+                          </Button>
+                        </>
                       ) : _order.orderStatus === 4 ? (
                         <Button
                           type="link"
@@ -608,6 +884,42 @@ const Order = ({ title }: { title?: string }) => {
                         >
                           Đã giao cho shipper
                         </Button>
+                      ) : _order.orderStatus === 0 ? (
+                        <Button
+                          type="link"
+                          disabled={true}
+                          id={_order.id}
+                          // onClick={() => handleAccept(_order.id)}
+                          className={clsx(
+                            "bg-red-300 text-xl font-medium rounded-lg  text-white m-2",
+                          )}
+                        >
+                          Đã huỷ đơn
+                        </Button>
+                      ) : _order.orderStatus === 21 ? (
+                        <Button
+                          type="link"
+                          // disabled={true}
+                          id={_order.id}
+                          // onClick={() => handleAccept(_order.id)}
+                          className={clsx(
+                            "bg-green-300 text-xl font-medium rounded-lg  text-white m-2",
+                          )}
+                        >
+                          Đơn đã được khách hàng nhận
+                        </Button>
+                      ) : _order.orderStatus === 22 ? (
+                        <Button
+                          type="link"
+                          disabled={true}
+                          id={_order.id}
+                          // onClick={() => handleAccept(_order.id)}
+                          className={clsx(
+                            "bg-green-300 text-xl font-medium rounded-lg  text-white m-2",
+                          )}
+                        >
+                          Đơn đã được khách hàng nhận
+                        </Button>
                       ) : (
                         <Button
                           type="link"
@@ -618,7 +930,7 @@ const Order = ({ title }: { title?: string }) => {
                             "text-xl font-medium rounded-lg  text-white m-2",
                           )}
                         >
-                          Đã giao thành công
+                          Đơn đã được shipper giao
                         </Button>
                       )}
                     </Table.Cell>
@@ -641,6 +953,7 @@ const Order = ({ title }: { title?: string }) => {
           </Table.Body>
         </Table>
       )}
+
       <div className="fixed bottom-12 left-auto">
         <Pagination
           current={currentPage + 1}

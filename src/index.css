@@ -96,3 +96,7 @@ input[type="number"]::-webkit-outer-spin-button {
   height: 30% !important;
 } */
 
+.ant-modal-footer .ant-btn-primary {
+  background: green !important;
+}
+

@@ -1,5 +1,6 @@
 import { lazy } from "react";
 import path from "src/constants/path";
+import ReturnChange from "src/pages/ReturnChange";
 
 import { VoucherView } from "src/pages/Voucher/view";
 import NewVoucher from "src/pages/Voucher/view/NewVoucher";
@@ -118,7 +119,10 @@ export const routeMain = [
     path: path.feedback,
     Component: TableFeedback,
   },
-
+  {
+    path: path.returnChange,
+    Component: ReturnChange,
+  },
   {
     path: "*",
     Component: NotFound,

@@ -75,6 +75,7 @@ const items = [
   getItem("Voucher", "/voucher", <SubtitlesIcon />),
   getItem("Đặt hàng", "/orders", <CreditCardIcon />),
   getItem("Phản hồi", "/feedback", <FeedbackIcon />),
+  getItem("Đơn yêu cầu đổi / trả", "/returnChange", <CreditCardIcon />),
 ];
 
 export default function Nav({ openNav, onCloseNav }) {
