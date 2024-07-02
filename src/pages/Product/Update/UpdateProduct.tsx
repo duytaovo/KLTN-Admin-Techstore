@@ -68,12 +68,25 @@ const UpdateProduct: React.FC = () => {
   const { character } = useAppSelector((state) => state.character);
   const { depot } = useAppSelector((state) => state.depot);
   const { brand } = useAppSelector((state) => state.brand);
-  const { entity } = useAppSelector((state) => state.entity);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const location = useLocation();
-  const searchParam = new URLSearchParams(location.search);
-  const productValue = searchParam.get("product");
+  const searchParam = new URLSearchParams(location.pathname);
+  const productValue = searchParam.get("slug");
+  const slugRegex = /slug-([^-]*)-idCategory/;
+  const slugMatch = location.pathname.match(slugRegex);
+  const slug = slugMatch ? slugMatch[1] : ""; // Kiểm tra null trước khi truy cập nhóm bắt giữ
+
+  // Biểu thức chính quy để lấy idCategory
+  const idCategoryRegex = /idCategory-(\d*)-id/;
+  const idCategoryMatch = location.pathname.match(idCategoryRegex);
+  const idCategory = idCategoryMatch ? idCategoryMatch[1] : "";
+
+  // Biểu thức chính quy để lấy id
+  const idRegex = /id-(\d*)/;
+  const idMatch = location.pathname.match(idRegex);
+  const id = idMatch ? idMatch[1] : "";
+
   const [productAttributes, setProductAttributes] = useState<
     ProductAttribute[]
   >([]);
@@ -106,6 +119,7 @@ const UpdateProduct: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { productSlug } = useParams();
+
   const params = getIdFromNameId(productSlug as string);
   // const { brand } = useAppSelector((state) => state.brand);
 
@@ -124,8 +138,8 @@ const UpdateProduct: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    dispatch(getDetailProduct(params.idProduct));
-  }, [params.idProduct]);
+    dispatch(getDetailProduct(id));
+  }, [id]);
 
   const [file, setFile] = useState<File[]>();
   const imageArray = file || []; // Mảng chứa các đối tượng ảnh (File hoặc Blob)
@@ -189,7 +203,6 @@ const UpdateProduct: React.FC = () => {
   }, [productDetail]);
 
   const onSubmit = handleSubmit(async (data) => {
-    console.log("object");
     let images = [];
     showModal();
     setIsSubmitting(true);
@@ -207,7 +220,7 @@ const UpdateProduct: React.FC = () => {
     }
     const body = JSON.stringify({
       brandId: Number(data.brand),
-      categoryId: Number(params.idCategory),
+      categoryId: Number(idCategory),
       characteristicId: Number(data.characteristic),
       productCode: productDetail.productCode,
       name: data.name,
@@ -239,14 +252,14 @@ const UpdateProduct: React.FC = () => {
 
     try {
       const bodyGet = {
-        slug: productValue,
+        slug: slug,
         brandId: null,
         characteristicId: null,
         priceFrom: null,
         priceTo: null,
         specialFeatures: [],
       };
-      const res = await dispatch(updateProduct({ id: params.idProduct, body }));
+      const res = await dispatch(updateProduct({ id: id, body }));
       unwrapResult(res);
       const d = res?.payload?.data;
       // if (d?.code !== 200) return toast.error(d?.message);
@@ -392,7 +405,7 @@ const UpdateProduct: React.FC = () => {
     <div className="bg-white shadow ">
       <h2 className="font-bold m-4 text-2xl">Cập nhật sản phẩm </h2>
       <Form
-        labelCol={{ span: 4 }}
+        labelCol={{ span: 6 }}
         wrapperCol={{ span: 14 }}
         layout="horizontal"
         style={{ maxWidth: 800, padding: 6 }}

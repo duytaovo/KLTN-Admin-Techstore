@@ -1,5 +1,6 @@
 import { lazy } from "react";
 import path from "src/constants/path";
+import Message from "src/pages/Message";
 import ReturnChange from "src/pages/ReturnChange";
 
 import { VoucherView } from "src/pages/Voucher/view";
@@ -7,6 +8,7 @@ import NewVoucher from "src/pages/Voucher/view/NewVoucher";
 import UpdateVoucher from "src/pages/Voucher/view/UpdateVoucher";
 import { BrandView } from "src/pages/brand-new/view";
 import { AppView } from "src/pages/overview/view";
+import { StatisticShipperView } from "src/pages/statistic-shipper/view";
 // import PageStatistic from "src/pages/statistic/PageStatistic";
 import { UserView } from "src/pages/user/view";
 
@@ -40,10 +42,10 @@ export const routeMain = [
     path: path.home,
     Component: AppView,
   },
-  // {
-  //   path: path.statics,
-  //   Component: PageStatistic,
-  // },
+  {
+    path: path.manageStatisticShipper,
+    Component: StatisticShipperView,
+  },
   {
     path: path.orders,
     Component: Orders,
@@ -122,6 +124,10 @@ export const routeMain = [
   {
     path: path.returnChange,
     Component: ReturnChange,
+  },
+  {
+    path: path.message,
+    Component: Message,
   },
   {
     path: "*",

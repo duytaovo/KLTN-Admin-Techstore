@@ -20,6 +20,7 @@ import appReducer from "src/app.slice";
 import statisticReducer from "./statistic/statisticSlice";
 import manageShipperReducer from "./managerShipper/orderSlice";
 import unOrderReducer from "./returnChange/returnChangeSlice";
+import chatReducer from "./chat/chat";
 
 export const store = configureStore({
   reducer: {
@@ -39,6 +40,8 @@ export const store = configureStore({
     search: searchSlice,
     statistic: statisticReducer,
     manageShipper: manageShipperReducer,
+    chatShipper: chatReducer,
+
   },
   devTools: process.env.NODE_ENV === "development",
   middleware: (getDefaultMiddleware) => [

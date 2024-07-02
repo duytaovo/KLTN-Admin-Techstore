@@ -77,11 +77,7 @@ export class Http {
           const data: any | undefined = error.response?.data;
           const message = data?.message || error.message;
           toast.error(message);
-          if (message === "Request failed with status code 500") {
-            // this.handleRefreshToken();
-          }
         }
-
         if (
           isAxiosUnauthorizedError<
             ErrorResponse<{ name: string; message: string }>
@@ -89,8 +85,7 @@ export class Http {
         ) {
           const config: any = error.response?.config || {};
           const { url } = config;
-          // Trường hợp Token hết hạn và request đó không phải là của request refresh token
-          // thì chúng ta mới tiến hành gọi refresh token
+
           if (
             url !== URL_REFRESH_TOKEN &&
             error.response?.status == HttpStatusCode.Forbidden
@@ -120,7 +115,7 @@ export class Http {
           toast.error(
             error.response?.data.data?.message || error.response?.data.message,
           );
-          window.location.reload();
+          // window.location.reload();
         }
         return Promise.reject(error);
       },

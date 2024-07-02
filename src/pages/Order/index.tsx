@@ -28,7 +28,7 @@ const Orders = () => {
         <title>{"Trang quản lý đơn hàng "}</title>
         <meta name="description" />
       </Helmet>
-      <div>{order.data.totalElements <= 0 ? <EmptyOrder /> : <Order />}</div>
+      <div>{<Order />}</div>
     </div>
   );
 };

@@ -52,7 +52,7 @@ export function LatestOrders({
 }: LatestOrdersProps): React.JSX.Element {
   return (
     <Card sx={sx}>
-      <CardHeader title="Latest orders" />
+      <CardHeader title="Đơn hàng mới nhất" />
       <Divider />
       <Box sx={{ overflowX: "auto" }}>
         <Table sx={{}}>
@@ -83,7 +83,7 @@ export function LatestOrders({
         </Table>
       </Box>
       <Divider />
-      <CardActions sx={{ justifyContent: "flex-end" }}>
+      {/* <CardActions sx={{ justifyContent: "flex-end" }}>
         <Button
           color="inherit"
           endIcon={<ArrowRightIcon fontSize="var(--icon-fontSize-md)" />}
@@ -92,7 +92,7 @@ export function LatestOrders({
         >
           View all
         </Button>
-      </CardActions>
+      </CardActions> */}
     </Card>
   );
 }

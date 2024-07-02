@@ -6,15 +6,6 @@ import clsx from "clsx";
 import dayjs, { Dayjs } from "dayjs";
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "src/hooks/useRedux";
-import {
-  getOrders,
-  putOrderApprove,
-  putOrderAssign,
-  putOrderCancel,
-  putOrderConfirm,
-  putOrderReject,
-  putOrderSuccess,
-} from "src/store/order/orderSlice";
 import { Button, Modal, Pagination, Select } from "antd";
 import { toast } from "react-toastify";
 import { Helmet } from "react-helmet-async";
@@ -230,7 +221,7 @@ const ReturnChange = ({ title }: { title?: string }) => {
             : [],
         };
         await dispatch(
-          getOrders({
+          getUnOrders({
             // body: body,
             params: { pageNumber: currentPage, pageSize: 10 },
           }),
@@ -244,7 +235,6 @@ const ReturnChange = ({ title }: { title?: string }) => {
     }
   };
 
-  console.log(currentPage);
   const handlePageChange = (page: number) => {
     console.log(page);
     setCurrentPage(page - 1);

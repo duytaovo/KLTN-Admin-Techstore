@@ -76,6 +76,12 @@ const items = [
   getItem("Đặt hàng", "/orders", <CreditCardIcon />),
   getItem("Phản hồi", "/feedback", <FeedbackIcon />),
   getItem("Đơn yêu cầu đổi / trả", "/returnChange", <CreditCardIcon />),
+  getItem("Nhắn tin", "/message", <DashboardIcon />),
+  getItem(
+    "Thống kê của shipper ",
+    "/manage-statistic-shipper",
+    <DashboardIcon />,
+  ),
 ];
 
 export default function Nav({ openNav, onCloseNav }) {

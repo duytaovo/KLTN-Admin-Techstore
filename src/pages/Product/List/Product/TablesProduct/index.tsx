@@ -113,7 +113,7 @@ const TableProduct: React.FC = () => {
   const { brand } = useAppSelector<any>((state) => state.brand);
   const { character } = useAppSelector<any>((state) => state.character);
   const [dataFilterLocal, setDataFilterLocal] = useState<any>();
-  const [product, setProduct] = useState<string>("");
+  const [product, setProduct] = useState<string>("Điện thoại + smartphone + 1");
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => {
     if (productValue === "undefined") {
@@ -344,7 +344,7 @@ const TableProduct: React.FC = () => {
             <FormControl sx={{ minWidth: 160, marginRight: 2 }}>
               <InputLabel id="demo-simple-select-label">Product</InputLabel>
               <Select
-                defaultValue={product}
+                // defaultValue={product}
                 labelId={product}
                 id="demo-simple-select"
                 value={product}

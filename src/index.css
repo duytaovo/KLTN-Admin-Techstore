@@ -100,3 +100,22 @@ input[type="number"]::-webkit-outer-spin-button {
   background: green !important;
 }
 
+.ant-picker-content thead tr {
+  display: none;
+}
+
+.css-g6wz2p-MuiTypography-root,
+.css-8ebtji-MuiTypography-root {
+  font-size: 16px !important;
+  font-weight: 500 !important;
+}
+
+.css-kli1rf-MuiTypography-root {
+  font-size: 16px !important;
+  font-weight: 500;
+}
+
+.css-30mx3m-MuiTableCell-root,
+.css-1uoh5bq-MuiTableCell-root {
+  font-size: 13px !important;
+}

@@ -56,7 +56,6 @@ export function formatCurrency(currency: number) {
   return new Intl.NumberFormat("de-DE").format(Number(currency));
 }
 export const getIdFromNameId = (nameId: string) => {
-  console.log(nameId);
   const idProduct = nameId?.split("-id-")[1];
   const slug = nameId?.split("-slug-")[1]?.split("-idCategory-")[0];
   const idCategory = nameId?.split("-idCategory-")[1]?.split("-id-")[0];

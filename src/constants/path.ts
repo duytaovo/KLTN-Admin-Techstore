@@ -26,6 +26,9 @@ const path = {
   feedbackDetail: "/feedback/:id",
   statics: "/statics",
   returnChange: "/returnChange",
+  manageShipper: "/manage-shipper",
+  manageStatisticShipper: "/manage-statistic-shipper",
+  message: "/message",
 } as const;
 
 export default path;

@@ -17,8 +17,13 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import dayjs from "dayjs";
 import type { DatePickerProps } from "antd";
-import { Button, DatePicker } from "antd";
+import { Button, DatePicker, Modal } from "antd";
 import { StatisticBestSeller } from "src/components/statistic";
+import { format } from "date-fns";
+import { getOrders } from "src/store/order/orderSlice";
+import { unwrapResult } from "@reduxjs/toolkit";
+import { getShippers } from "src/store/managerShipper/orderSlice";
+
 // ----------------------------------------------------------------------
 interface ProfitData {
   year: number;
@@ -64,7 +69,7 @@ const _statistic = {
   ],
   lastOrders: [{}],
 };
-export default function AppView() {
+export default function StatisticShipperView() {
   const [valueYear, setValueYear] = useState("2024");
   const refButton: any = useRef(null);
   const _index: number =
@@ -82,9 +87,11 @@ export default function AppView() {
       ? 5
       : 0;
   const { statistic } = useAppSelector((state) => state.statistic);
-  const [statisticLocal, setStatisticLocal] = useState(_statistic);
   const dispatch = useAppDispatch();
-
+  const [chooseShipper, setChooseShipper] = useState("21");
+  const { shippers } = useAppSelector((state) => state.manageShipper);
+  const [dataOrders, setShowDataOrders] = useState<any>();
+  const [isGettingData, setIsGettingData] = useState<boolean>(false);
   const [startDate, setStartDate] = useState(new Date("2024-06-01T00:00:00"));
   const [endDate, setEndDate] = useState(new Date(new Date()));
   // new Date(`${valueYear}-05-09T00:00:00`),
@@ -122,76 +129,97 @@ export default function AppView() {
     return res;
   };
 
-  useEffect(() => {
-    setStatisticLocal((prevState) => ({
-      ...prevState,
-      sales: { years: changeFormatSales(yearlyProfits) },
-      totalProducts: { years: statistic.productTypes },
-      lastOrders: statistic.lastOrders,
-      productBestSellers: statistic.productsBestSeller,
-    }));
-  }, [statistic]);
-  const calculateInRange = (
-    data: ProfitData,
-    startDate: Date,
-    endDate: Date,
-  ): number => {
-    if (!startDate || !endDate) return 0;
-    const startDay = Math.floor(
-      (startDate.getTime() -
-        new Date(startDate.getFullYear(), 0, 0).getTime()) /
-        (1000 * 60 * 60 * 24),
-    );
-    const endDay = Math.floor(
-      (endDate.getTime() - new Date(endDate.getFullYear(), 0, 0).getTime()) /
-        (1000 * 60 * 60 * 24),
-    );
-    let totalProfit = 0;
-    for (let i = startDay - 1; i <= endDay - 1; i++) {
-      totalProfit += data?.dayQuantity[i];
-    }
-
-    return totalProfit;
+  const bodyOrders = {
+    shippingId: null,
+    shipperId: Number(chooseShipper),
+    completeDateFrom: null,
+    completeDateTo: null,
+    orderStatus: [0, -1, 4, 5, 22, 11],
+    receiveDateFrom: startDate ? format(startDate, "yyyy-MM-dd") : null,
+    receiveDateTo: endDate ? format(endDate, "yyyy-MM-dd") : null,
+    buyDateFrom: null,
+    buyDateTo: null,
+    deliveryDateFrom: null,
+    deliveryDateTo: null,
+    shipDateFrom: null,
+    shipDateTo: null,
+    paymentStatus: [],
+    productName: null,
+    customerName: null,
+    customerAddress: null,
   };
-  useEffect(() => {
-    dispatch(getStatistic(""));
-    handleCalculateClick();
-  }, []);
 
-  useEffect(() => {
-    handleCalculateClick();
-  }, [statistic]);
-
-  const handleCalculateClick = () => {
-    const profitInRange = calculateInRange(
-      statistic.profits[_index],
-      startDate!,
-      endDate!,
-    );
-    const userInRange = calculateInRange(
-      statistic.users[_index],
-      startDate!,
-      endDate!,
-    );
-    const orderInRange = calculateInRange(
-      statistic.orders[_index],
-      startDate!,
-      endDate!,
-    );
-    const orderPaidInRange = calculateInRange(
-      statistic.ordersPaid[_index],
-      startDate!,
-      endDate!,
+  const _getData = async () => {
+    const orders = await dispatch(
+      getOrders({
+        body: bodyOrders,
+        params: { pageNumber: 0, pageSize: 100 },
+      }),
     );
 
-    setStatisticLocal((prevState) => ({
-      ...prevState,
-      totalProfits: profitInRange,
-      totalNewUsers: userInRange,
-      totalItemOrders: orderInRange,
-      totalItemOrdersPaid: orderPaidInRange,
-    }));
+    unwrapResult(orders);
+    console.log(orders);
+    setShowDataOrders(orders.payload.data);
   };
+
+  useEffect(() => {
+    dispatch(
+      getShippers({
+        params: { pageNumber: 0, pageSize: 100 },
+      }),
+    );
+  }, [chooseShipper]);
+
+  useEffect(() => {
+    const getData = async () => {
+      setIsGettingData(true);
+      await _getData();
+      setIsGettingData(false);
+    };
+    getData();
+  }, [dispatch, startDate, endDate, chooseShipper]);
+
+  const calculateStats = () => {
+    // Tính tổng số đơn hàng đã giao thành công
+    const totalSuccessfulOrders = dataOrders?.data?.data?.filter(
+      (order: any) => order.orderStatus === 22,
+    );
+    const totalRejectOrders = dataOrders?.data?.data?.filter(
+      (order: any) => order.orderStatus === 0,
+    ).length;
+
+    const totalFailedOrders = dataOrders?.data?.data?.filter(
+      (order: any) => order.orderStatus === -1,
+    ).length;
+
+    // Tính tổng số tiền gửi lại cho cửa hàng
+    const totalRefundToShop = totalSuccessfulOrders?.reduce(
+      (total: any, order: any) => total + order.orderPrice,
+      0,
+    );
+
+    // Tính tổng doanh thu của shipper
+    const totalShippingRevenue = totalSuccessfulOrders?.reduce(
+      (total: any, order: any) => total + order.deliveryPrice,
+      0,
+    );
+
+    return {
+      totalSuccessfulOrders,
+      totalRefundToShop,
+      totalShippingRevenue,
+      totalRejectOrders,
+      totalFailedOrders,
+    };
+  };
+
+  const {
+    totalSuccessfulOrders,
+    totalRejectOrders,
+    totalRefundToShop,
+    totalShippingRevenue,
+    totalFailedOrders,
+  } = calculateStats();
 
   const onChangeDayStart: DatePickerProps["onChange"] = (date, dateString) => {
     const _date = new Date(dateString + "T00:00:00");
@@ -204,41 +232,34 @@ export default function AppView() {
   };
 
   const handleChange = (event: any) => {
-    setValueYear(event.target.value);
-    onChangeDayStart(null, `${event.target.value}-04-01T00:00:00`);
-    onChangeDayEnd(null, `${event.target.value}-04-30T00:00:00`);
+    setChooseShipper(event.target.value);
   };
 
   return (
     <Container maxWidth="xl">
       <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-        <Typography variant="h4" sx={{ mb: 5 }}>
-          Xin chào Admin 👋
-        </Typography>
+        <div>
+          <InputLabel id="demo-simple-select-label">Chọn shipper</InputLabel>
+          <Select
+            placeholder="Chọn shipper"
+            defaultValue={chooseShipper}
+            style={{ width: 120 }}
+            onChange={handleChange}
+          >
+            {shippers?.data?.data?.map((shipper) => {
+              return (
+                <MenuItem value={shipper.id.toString()}>
+                  {shipper.fullName}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        </div>
         <FormControl sx={{}}>
-          <div className="space-x-5 ml-5 mb-5">
+          <div className="space-x-5  mb-5">
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <InputLabel id="demo-simple-select-label">
-                Chọn năm thống kê
-              </InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={valueYear}
-                label="Năm"
-                // defaultValue={2024}
-                onChange={handleChange}
-              >
-                <MenuItem value={2026}>2026</MenuItem>
-                <MenuItem value={2025}>2025</MenuItem>
-                <MenuItem value={2024}>2024</MenuItem>
-                <MenuItem value={2023}>2023</MenuItem>
-                <MenuItem value={2022}>2022</MenuItem>
-                <MenuItem value={2021}>2021</MenuItem>
-                <MenuItem value={2020}>2020</MenuItem>
-              </Select>
-
               <DatePicker
+                allowClear={false}
                 disabledDate={(current) =>
                   current &&
                   (current <= dayjs(`${valueYear}/01/01T00:00:00`) ||
@@ -249,6 +270,7 @@ export default function AppView() {
               />
 
               <DatePicker
+                allowClear={false}
                 disabledDate={(current) =>
                   current &&
                   (current <= dayjs(`${valueYear}/01/01T00:00:00`) ||
@@ -257,18 +279,34 @@ export default function AppView() {
                 onChange={onChangeDayEnd}
                 defaultValue={dayjs(endDate)}
               />
-              <Button ref={refButton} onClick={handleCalculateClick}>
+              <Button ref={refButton} onClick={calculateStats}>
                 Lọc
               </Button>
             </LocalizationProvider>
           </div>
         </FormControl>
       </Box>
-      <Grid container spacing={3}>
+      <Grid container spacing={3} marginTop={2}>
         <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
-            title="Tổng lợi nhuận"
-            total={statisticLocal?.totalProfits}
+            title={"Thu nhập"}
+            total={totalShippingRevenue?.toString()}
+            color="success"
+            icon={<img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
+          />
+        </Grid>
+        <Grid xs={12} sm={6} md={3}>
+          <AppWidgetSummary
+            title={"Số tiền đã giao"}
+            total={totalRefundToShop?.toString()}
+            color="success"
+            icon={<img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
+          />
+        </Grid>
+        <Grid xs={12} sm={6} md={3}>
+          <AppWidgetSummary
+            title={"Đơn đã nhận"}
+            total={dataOrders?.data?.data?.length.toString()}
             color="success"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
           />
@@ -276,8 +314,8 @@ export default function AppView() {
 
         <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
-            title="Tổng số khách hàng"
-            total={statisticLocal?.totalNewUsers}
+            title={"Đơn đã giao"}
+            total={totalSuccessfulOrders?.length?.toString()}
             color="info"
             icon={
               <img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />
@@ -287,8 +325,8 @@ export default function AppView() {
 
         <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
-            title="Số đơn hàng"
-            total={statisticLocal?.totalItemOrders}
+            title={"Đơn đã bị huỷ"}
+            total={totalRejectOrders?.toString()}
             color="warning"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_buy.png" />}
           />
@@ -296,15 +334,15 @@ export default function AppView() {
 
         <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
-            title="Số đơn hàng đã thanh toán "
-            total={statisticLocal?.totalItemOrdersPaid}
+            title={"Đơn giao thất bại"}
+            total={totalFailedOrders?.toString()}
             color="error"
             icon={
               <img alt="icon" src="/assets/icons/glass/ic_glass_message.png" />
             }
           />
         </Grid>
-        <Grid xs={12} md={6} lg={8}>
+        {/* <Grid xs={12} md={6} lg={8}>
           <AppWebsiteVisits
             title="Doanh thu"
             chart={{
@@ -330,25 +368,25 @@ export default function AppView() {
               ],
             }}
           />
-        </Grid>
-        <Grid xs={12} md={6} lg={4}>
+        </Grid> */}
+        {/* <Grid xs={12} md={6} lg={4}>
           <AppCurrentVisits
             title="Sản phẩm"
             chart={{
               series: statisticLocal?.totalProducts.years,
             }}
           />
-        </Grid>
+        </Grid> */}
 
-        <Grid xs={12} md={6} lg={6}>
+        {/* <Grid xs={12} md={6} lg={6}>
           <StatisticBestSeller dataBestSeller={statistic.productsBestSeller} />
-        </Grid>
-        <Grid xs={12} md={6} lg={6}>
+        </Grid> */}
+        {/* <Grid xs={12} md={6} lg={6}>
           <LatestOrders
             orders={statisticLocal?.lastOrders}
             sx={{ height: "100%" }}
           />
-        </Grid>
+        </Grid> */}
       </Grid>
     </Container>
   );
