@@ -51,6 +51,11 @@ export const putOrderCancel = createAsyncThunk(
   "unOrders/putOrderCancel",
   payloadCreator(unOrderApi.putOrderCancel),
 );
+
+export const putChangeDelivering = createAsyncThunk(
+  "unorders/putChangeDelivering",
+  payloadCreator(unOrderApi.putChangeDelivering),
+);
 const datamau = {
   code: 0,
   message: "",

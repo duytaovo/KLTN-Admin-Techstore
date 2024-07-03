@@ -36,5 +36,10 @@ export const unOrderApi = {
   putOrderReject(id: any) {
     return http.put(`${URL}/reject/${id}`);
   },
+  putChangeDelivering({ orderId, shipperId }: any) {
+    return http.put(
+      `/shipper/change-delivering?orderId=${orderId}&shipperId=${shipperId}`,
+    );
+  },
 };
 

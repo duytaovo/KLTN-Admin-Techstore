@@ -9,79 +9,15 @@ import { useAppDispatch, useAppSelector } from "src/hooks/useRedux";
 import { Button, Modal, Pagination, Select } from "antd";
 import { toast } from "react-toastify";
 import { Helmet } from "react-helmet-async";
-import { DownloadOutlined } from "@ant-design/icons";
 import * as ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
-import Filter from "src/components/Filter/Filter";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DateRange } from "@mui/x-date-pickers-pro";
-import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
 import Skeleton from "src/components/Skeleton";
 import { getShippers } from "src/store/managerShipper/orderSlice";
 import {
   getUnOrders,
   putUnOrderApprove,
 } from "src/store/returnChange/returnChangeSlice";
-import numberWithCommas from "src/utils/numberWithCommas";
-const data = [
-  {
-    id: 1,
-    title: "Trạng thái đơn hàng",
-    detail: [
-      {
-        id: 1,
-        name: "Đã đặt",
-      },
-      {
-        id: 2,
-        name: "Đã xác nhận",
-      },
-      {
-        id: 3,
-        name: "Đang được yêu cầu",
-      },
-      {
-        id: 4,
-        name: "Đã phân công shipper",
-      },
-      {
-        id: 5,
-        name: "Đang được vận chuyển",
-      },
-      {
-        id: 6,
-        name: "Đã được shipper giao thành công",
-      },
-      {
-        id: 7,
-        name: "Đã hoàn thành",
-      },
-    ],
-  },
-  {
-    id: 2,
-    title: "Trạng thái thanh toán",
-    detail: [
-      {
-        id: 0,
-        name: "Chưa thanh toán",
-      },
-      {
-        id: 1,
-        name: "Đang chờ thanh toán",
-      },
-      {
-        id: 2,
-        name: "Thanh toán thành công",
-      },
-      {
-        id: 3,
-        name: "Thanh toán thất bại",
-      },
-    ],
-  },
-];
 
 const ReturnChange = ({ title }: { title?: string }) => {
   const style = (text: string) => {
@@ -107,7 +43,6 @@ const ReturnChange = ({ title }: { title?: string }) => {
   const filter = useAppSelector((state) => state.product.filter.data); // Lấy tất cả
   const [dataFilterLocal, setDataFilterLocal] = useState<any>();
   const { unOrder } = useAppSelector((state) => state.unOrders);
-  console.log(unOrder);
   const [value, setValue] = useState<DateRange<Dayjs>>([
     dayjs("2023-01-01"),
     dayjs(),
@@ -131,7 +66,6 @@ const ReturnChange = ({ title }: { title?: string }) => {
   };
 
   const handleCancelModal = () => {
-    console.log("Clicked cancel button");
     setOpen(false);
   };
 
@@ -197,29 +131,14 @@ const ReturnChange = ({ title }: { title?: string }) => {
     );
   }, [currentPage, value, Trangthaidonhang, Phuongthucthanhtoan, dispatch]);
 
-  const handleApprove = async (id: number) => {
-    console.log(id);
+  const handleApprove = async (order: any) => {
     setOpen(false);
     if (confirm("Bạn có muốn cho đổi/trả hàng không ?")) {
       const res: any = await dispatch(
-        putUnOrderApprove({ id, shipperId: chooseShipper }),
+        putUnOrderApprove({ id: order.orderId, shipperId: order.shipperId }),
       );
       const data = res.payload;
       if (data?.data?.code === 200) {
-        const body = {
-          shippingId: null,
-          completeDateFrom: null,
-          completeDateTo: null,
-          productName: null,
-          customerName: null,
-          customerAddress: null,
-          orderStatus: TrangthaidonhangNumber ? TrangthaidonhangNumber : [],
-          buyDateFrom: value[0]?.format("YYYY-MM-DD") || null,
-          buyDateTo: value[1]?.format("YYYY-MM-DD") || null,
-          paymentStatus: PhuongthucthanhtoanNumber
-            ? PhuongthucthanhtoanNumber
-            : [],
-        };
         await dispatch(
           getUnOrders({
             // body: body,
@@ -236,7 +155,6 @@ const ReturnChange = ({ title }: { title?: string }) => {
   };
 
   const handlePageChange = (page: number) => {
-    console.log(page);
     setCurrentPage(page - 1);
   };
 
@@ -314,7 +232,7 @@ const ReturnChange = ({ title }: { title?: string }) => {
         <title>{"Trang quản lý đơn hàng "}</title>
         <meta name="description" />
       </Helmet>
-      <Button
+      {/* <Button
         onClick={() => exportToExcel(unOrder?.data?.data)}
         type="primary"
         icon={<DownloadOutlined />}
@@ -322,11 +240,11 @@ const ReturnChange = ({ title }: { title?: string }) => {
         className="text-blue-500 mb-2"
       >
         Xuất file excel
-      </Button>
-      <div className="text-mainColor max-w-[1200px] ml-5 mb-5 m-auto">
+      </Button> */}
+      {/* <div className="text-mainColor max-w-[1200px] ml-5 mb-5 m-auto">
         <Filter handle={handle} data={data} />
-      </div>
-      <div className="space-x-5 ml-5 mb-5">
+      </div> */}
+      {/* <div className="space-x-5 ml-5 mb-5">
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DateRangePicker
             className="w-1/3"
@@ -334,7 +252,7 @@ const ReturnChange = ({ title }: { title?: string }) => {
             onChange={(newValue) => setValue(newValue)}
           />
         </LocalizationProvider>
-      </div>
+      </div> */}
       {loading > 0 ? (
         <Skeleton
           styles={{ height: "50vh" }}
@@ -428,7 +346,7 @@ const ReturnChange = ({ title }: { title?: string }) => {
                               // disabled={displayCancelBtn}
                               id={_order.id}
                               onClick={() => {
-                                setOpen(true);
+                                handleApprove(_order);
                               }}
                               className={clsx(
                                 "bg-green-500 text-xl font-medium rounded-lg  text-white m-2",
@@ -438,9 +356,9 @@ const ReturnChange = ({ title }: { title?: string }) => {
                             </Button>
                             <Modal
                               title="Chọn shipper giao hàng"
-                              open={open}
+                              // open={open}
                               onOk={() => {
-                                handleApprove(_order.orderId);
+                                handleApprove(_order);
                               }}
                               confirmLoading={confirmLoading}
                               onCancel={handleCancelModal}

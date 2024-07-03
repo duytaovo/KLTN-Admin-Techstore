@@ -109,9 +109,9 @@ export class Http {
             });
           }
 
-          // clearLS();
-          // this.accessToken = "";
-          // this.refreshToken = "";
+          clearLS();
+          this.accessToken = "";
+          this.refreshToken = "";
           toast.error(
             error.response?.data.data?.message || error.response?.data.message,
           );
@@ -122,6 +122,7 @@ export class Http {
     );
   }
   private handleRefreshToken() {
+    console.log(this.refreshToken)
     return this.instance
       .post<RefreshTokenReponse>(URL_REFRESH_TOKEN, {
         token: this.refreshToken,

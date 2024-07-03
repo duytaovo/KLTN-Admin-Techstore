@@ -30,6 +30,8 @@ import { DateRange } from "@mui/x-date-pickers-pro";
 import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
 import Skeleton from "src/components/Skeleton";
 import { getShippers } from "src/store/managerShipper/orderSlice";
+import { orderApi } from "src/api/order/orderApi.api";
+import { putChangeDelivering } from "src/store/returnChange/returnChangeSlice";
 const data = [
   {
     id: 1,
@@ -37,31 +39,99 @@ const data = [
     detail: [
       {
         id: 1,
-        name: "Đã đặt",
+        name: "Đơn  đã được đặt",
       },
       {
         id: 2,
-        name: "Đã xác nhận",
+        name: "Đơn  đã xác nhận",
       },
       {
         id: 3,
-        name: "Đang được yêu cầu",
+        name: "Đơn  đang được shipper yêu cầu",
       },
       {
         id: 4,
-        name: "Đã phân công shipper",
+        name: "Đơn  đang chờ shipper lấy",
       },
       {
         id: 5,
-        name: "Đang được vận chuyển",
+        name: "Đơn  đang trên đường giao",
       },
       {
         id: 6,
-        name: "Đã được shipper giao thành công",
+        name: "Đơn đang được chuyển shipper khác",
       },
       {
         id: 7,
-        name: "Đã hoàn thành",
+        name: "Đơn đã chuyển cho shipper khác",
+      },
+      {
+        id: 8,
+        name: "Đơn vận chuyển thất bại lần 1",
+      },
+      {
+        id: 9,
+        name: "Đơn vận chuyển thất bại lần 2",
+      },
+      {
+        id: 10,
+        name: "Đơn vận chuyển thất bại lần 3",
+      },
+      {
+        id: 11,
+        name: "Đơn  đã giao thành công",
+      },
+      {
+        id: 12,
+        name: "Yêu cầu đổi hàng",
+      },
+      {
+        id: 13,
+        name: "Đơn hàng đang đổi",
+      },
+      {
+        id: 14,
+        name: "Đã đổi hàng",
+      },
+      {
+        id: 15,
+        name: "Yêu cầu trả và đổi hàng",
+      },
+      {
+        id: 16,
+        name: "Đang đổi và trả hàng",
+      },
+      {
+        id: 17,
+        name: "Đã đổi và trả hàng thành công",
+      },
+      {
+        id: 18,
+        name: "Yêu cầu trả hàng",
+      },
+      {
+        id: 19,
+        name: "Đơn hàng đang trả lại",
+      },
+      {
+        id: 20,
+        name: "Đơn trả lại shop thành công",
+      },
+      {
+        id: 21,
+        name: "Đơn đã được nhận",
+      },
+      {
+        id: 22,
+        name: "Đơn thành công",
+      },
+      {
+        id: 0,
+        name: "Đơn đã bị huỷ",
+      },
+      {
+        id: -1,
+        name: "Đơn thất bại",
       },
     ],
   },
@@ -88,7 +158,19 @@ const data = [
     ],
   },
 ];
-
+interface Shipper {
+  id: number;
+  fullName: string;
+  phoneNumber: string;
+  email: string;
+  gender: number;
+  address: string;
+  imageUrl: string;
+  level: number;
+  levelString: string;
+  isEnable: boolean;
+  areaSign: string;
+}
 const Order = ({ title }: { title?: string }) => {
   const style = (text: string) => {
     switch (text) {
@@ -128,7 +210,6 @@ const Order = ({ title }: { title?: string }) => {
   const loading = useAppSelector((state) => state.loading.loading);
   const [chooseShipper, setChooseShipper] = useState("");
   const { shippers } = useAppSelector((state) => state.manageShipper);
-
   const [orderDetail, setOrderDetail] = useState({ index: -1, id: null });
   const dispatch = useAppDispatch();
   const filter = useAppSelector((state) => state.product.filter.data); // Lấy tất cả
@@ -142,9 +223,85 @@ const Order = ({ title }: { title?: string }) => {
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [modalText, setModalText] = useState("Chọn shipper giao hàng");
+  const [area, setArea] = useState("");
+  const [filteredShippers, setFilteredShippers] = useState<Shipper[]>([]);
+  const [orderCounts, setOrderCounts] = useState<Record<number, number>>({});
+  useEffect(() => {
+    const filterShippers = () => {
+      // Tách địa chỉ giao hàng thành các từ khóa
+      const keywords = area.split(/,?\s+/);
+      const matchingShippers = shippers.data.data.filter((shipper) =>
+        keywords.some((keyword) =>
+          shipper.areaSign.toLowerCase().includes(keyword.toLowerCase()),
+        ),
+      );
+      console.log(matchingShippers);
+      setFilteredShippers(matchingShippers);
+    };
 
-  const showModal = () => {
+    filterShippers();
+  }, [shippers, area]);
+
+  useEffect(() => {
+    const fetchOrderCounts = async () => {
+      const counts: Record<number, number> = {};
+
+      const fetchOrdersForShipper = async (shipperId: number) => {
+        try {
+          const response: any = await orderApi.getPurchases({
+            body: {
+              shippingId: null,
+              shipperId: shipperId,
+              completeDateFrom: null,
+              completeDateTo: null,
+              orderStatus: [0, -1, 4, 5, 22, 11],
+              receiveDateFrom: null,
+              receiveDateTo: null,
+              buyDateFrom: null,
+              buyDateTo: null,
+              deliveryDateFrom: null,
+              deliveryDateTo: null,
+              shipDateFrom: null,
+              shipDateTo: null,
+              paymentStatus: [],
+              productName: null,
+              customerName: null,
+              customerAddress: null,
+            },
+            params: { pageNumber: 0, pageSize: 100 },
+          });
+          return response.data.data?.totalElements;
+        } catch (error) {
+          console.error(
+            `Error fetching orders for shipper ${shipperId}:`,
+            error,
+          );
+          return 0;
+        }
+      };
+
+      const promises = filteredShippers.map(async (shipper) => {
+        const orderCount = await fetchOrdersForShipper(shipper.id);
+        counts[shipper.id] = orderCount;
+      });
+
+      await Promise.all(promises);
+      setOrderCounts(counts);
+    };
+
+    if (filteredShippers.length > 0) {
+      fetchOrderCounts();
+    }
+  }, [filteredShippers]);
+
+  const sortedShippers = [...filteredShippers].sort(
+    (a, b) => (orderCounts[a.id] || 0) - (orderCounts[b.id] || 0),
+  );
+
+  const showModalChooShipper = (order: any) => {
+    console.log(order);
     setOpen(true);
+    setArea(order.addressReceiver);
   };
 
   const handleOk = () => {
@@ -157,7 +314,6 @@ const Order = ({ title }: { title?: string }) => {
   };
 
   const handleCancelModal = () => {
-    console.log("Clicked cancel button");
     setOpen(false);
   };
 
@@ -285,7 +441,9 @@ const Order = ({ title }: { title?: string }) => {
           }),
         );
         toast.success("Gán thành công");
+        setOpen(false);
       } else {
+        setOpen(false);
         return null;
         // toast.error(data.data.message);
       }
@@ -293,7 +451,7 @@ const Order = ({ title }: { title?: string }) => {
   };
 
   const handleApprove = async (id: number) => {
-    if (confirm("Bạn có muốn Gán đơn hàng cho shipper không?")) {
+    if (confirm("Bạn có muốn gán đơn hàng cho shipper không?")) {
       const res: any = await dispatch(putOrderApprove(id));
       const data = res.payload;
       if (data?.data?.code === 200) {
@@ -318,7 +476,46 @@ const Order = ({ title }: { title?: string }) => {
           }),
         );
         toast.success("Xác nhận thành công");
+        setOpen(false);
       } else {
+        setOpen(false);
+        return null;
+        // toast.error(data.data.message);
+      }
+    }
+  };
+
+  const handleChangeDelivering = async (id: number) => {
+    if (confirm("Bạn có muốn chuyển đơn hàng cho shipper khác không?")) {
+      const res = await dispatch(
+        putChangeDelivering({ orderId: id, shipperId: chooseShipper }),
+      );
+      const data = res.payload;
+      if (data?.data?.code === 200) {
+        const body = {
+          shippingId: null,
+          completeDateFrom: null,
+          completeDateTo: null,
+          productName: null,
+          customerName: null,
+          customerAddress: null,
+          orderStatus: TrangthaidonhangNumber ? TrangthaidonhangNumber : [],
+          buyDateFrom: value[0]?.format("YYYY-MM-DD") || null,
+          buyDateTo: value[1]?.format("YYYY-MM-DD") || null,
+          paymentStatus: PhuongthucthanhtoanNumber
+            ? PhuongthucthanhtoanNumber
+            : [],
+        };
+        await dispatch(
+          getOrders({
+            body: body,
+            params: { pageNumber: currentPage, pageSize: 10 },
+          }),
+        );
+        toast.success("Chuyển thành công");
+        setOpen(false);
+      } else {
+        setOpen(false);
         return null;
         // toast.error(data.data.message);
       }
@@ -817,7 +1014,7 @@ const Order = ({ title }: { title?: string }) => {
                             type="link"
                             disabled={displayCancelBtn}
                             id={_order.id}
-                            onClick={showModal}
+                            onClick={() => showModalChooShipper(_order)}
                             className={clsx(
                               "bg-green-500 text-xl font-medium rounded-lg  text-white m-2",
                               displayCancelBtn && "!bg-gray-100 !text-gray-700",
@@ -841,7 +1038,7 @@ const Order = ({ title }: { title?: string }) => {
                               onChange={(itemValue) =>
                                 setChooseShipper(itemValue)
                               }
-                              options={shippers.data.data.map((shipper) => ({
+                              options={sortedShippers?.map((shipper) => ({
                                 value: shipper.id.toString(),
                                 label: shipper.fullName,
                               }))}
@@ -851,7 +1048,7 @@ const Order = ({ title }: { title?: string }) => {
                         </div>
                       ) : _order.orderStatus === 5 ? (
                         <>
-                          <Button
+                          {/* <Button
                             type="link"
                             disabled={true}
                             id={_order.id}
@@ -861,6 +1058,17 @@ const Order = ({ title }: { title?: string }) => {
                             )}
                           >
                             Đang giao hàng
+                          </Button> */}
+                          <Button
+                            type="link"
+                            // disabled={displayCancelBtn}
+                            id={_order.id}
+                            onClick={() => showModalChooShipper(_order)}
+                            className={clsx(
+                              "bg-red-500 text-xl font-medium rounded-lg  text-white m-2",
+                            )}
+                          >
+                            Chuyển cho shipper khác
                           </Button>
                           <Button
                             type="link"
@@ -873,6 +1081,28 @@ const Order = ({ title }: { title?: string }) => {
                           >
                             Hủy đơn
                           </Button>
+                          <Modal
+                            title="Chọn shipper giao hàng"
+                            open={open}
+                            onOk={() => {
+                              handleChangeDelivering(_order.id);
+                            }}
+                            confirmLoading={confirmLoading}
+                            onCancel={handleCancelModal}
+                          >
+                            <p>{modalText}</p>
+                            <Select
+                              defaultValue={chooseShipper}
+                              style={{ width: 120 }}
+                              onChange={(itemValue) =>
+                                setChooseShipper(itemValue)
+                              }
+                              options={sortedShippers?.map((shipper) => ({
+                                value: shipper.id.toString(),
+                                label: shipper.fullName,
+                              }))}
+                            />
+                          </Modal>
                         </>
                       ) : _order.orderStatus === 4 ? (
                         <Button

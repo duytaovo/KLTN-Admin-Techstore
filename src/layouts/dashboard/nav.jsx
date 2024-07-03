@@ -135,10 +135,10 @@ export default function Nav({ openNav, onCloseNav }) {
   const renderMenu = (
     <Stack component="nav" spacing={0.5} sx={{ px: 2 }}>
       <Menu
-        defaultSelectedKeys={["/"]}
+        defaultSelectedKeys={[location.pathname]}
         color="green"
         className="text-gray-700 text-2xl"
-        defaultOpenKeys={["/products"]}
+        defaultOpenKeys={[location.pathname]}
         mode="inline"
         theme="light"
         inlineCollapsed={collapsed}

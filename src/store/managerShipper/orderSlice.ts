@@ -28,6 +28,7 @@ const initialState = {
           level: 1,
           levelString: "Bronze",
           isEnable: true,
+          areaSign: "",
         },
       ],
     },
