@@ -1065,7 +1065,7 @@ const Order = ({ title }: { title?: string }) => {
                             id={_order.id}
                             onClick={() => showModalChooShipper(_order)}
                             className={clsx(
-                              "bg-red-500 text-xl font-medium rounded-lg  text-white m-2",
+                              "bg-pink-500 text-xl font-medium rounded-lg  text-white m-2",
                             )}
                           >
                             Chuyển cho shipper khác

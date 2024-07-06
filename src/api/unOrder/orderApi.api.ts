@@ -24,7 +24,7 @@ export const unOrderApi = {
   putOrderCancel(id: any) {
     return http.put(`${URL}/cancel/${id}`);
   },
-  putUnOrderApprove({id,shipperId}: any) {
+  putUnOrderApprove({ id, shipperId }: any) {
     return http.put(`${URL}/approve/${id}?shipperId=${shipperId}`);
   },
   putOrderAssign({ id, shipperId }: { id: number; shipperId: number }) {
@@ -38,7 +38,7 @@ export const unOrderApi = {
   },
   putChangeDelivering({ orderId, shipperId }: any) {
     return http.put(
-      `/shipper/change-delivering?orderId=${orderId}&shipperId=${shipperId}`,
+      `/manage/shipper/change-delivering?orderId=${orderId}&shipperId=${shipperId}`,
     );
   },
 };

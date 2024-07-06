@@ -109,6 +109,7 @@ export default function Message() {
   };
 
   useEffect(() => {
+    scrollViewRef.current.scrollTop = scrollViewRef.current.scrollHeight;
     scrollToBottom();
   }, [data]);
 

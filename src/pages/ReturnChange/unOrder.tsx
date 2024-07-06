@@ -126,7 +126,7 @@ const ReturnChange = ({ title }: { title?: string }) => {
     dispatch(
       getUnOrders({
         // body: body,
-        params: { pageNumber: currentPage, pageSize: 100 },
+        params: { pageNumber: currentPage, pageSize },
       }),
     );
   }, [currentPage, value, Trangthaidonhang, Phuongthucthanhtoan, dispatch]);
@@ -142,7 +142,7 @@ const ReturnChange = ({ title }: { title?: string }) => {
         await dispatch(
           getUnOrders({
             // body: body,
-            params: { pageNumber: currentPage, pageSize: 10 },
+            params: { pageNumber: currentPage, pageSize },
           }),
         );
         toast.success("Xác nhận thành công");
@@ -273,128 +273,124 @@ const ReturnChange = ({ title }: { title?: string }) => {
             </Table.HeadCell>
           </Table.Head>
           <Table.Body className=" ">
-            {[...unOrder?.data?.data?.content]
-              .reverse()
-              ?.map((_order: any, index) => {
-                const displayDetail = index === orderDetail.index;
-                const styleStatus = style(_order.orderStatusString);
+            {unOrder?.data?.data?.content?.map((_order: any, index) => {
+              const displayDetail = index === orderDetail.index;
+              const styleStatus = style(_order.orderStatusString);
 
-                return (
-                  <>
-                    <Table.Row
-                      key={_order.ubOrderId}
-                      className=" dark:border-gray-700 dark:bg-gray-800 overflow-hidden"
-                    >
-                      <Table.Cell className="text-blue-400 text-2xl">
-                        #{_order.ubOrderId}
-                      </Table.Cell>
-                      <Table.Cell className="text-blue-400 hover:text-blue-700 select-none text-2xl">
-                        <Button
-                          type="link"
-                          className="p-0"
-                          onClick={() =>
-                            setOrderDetail((current) => {
-                              return current.index === index
-                                ? {
-                                    index: -1,
-                                    id: _order.orderId,
-                                  }
-                                : {
-                                    index,
-                                    id: _order.orderId,
-                                  };
-                            })
-                          }
-                        >
-                          Xem chi tiết
-                        </Button>
-                      </Table.Cell>
-                      <Table.Cell className="text-2xl">
-                        {_order?.quantity}
-                      </Table.Cell>
-                      <Table.Cell className="text-red-400 text-2xl">
-                        {_order?.mainCauseString}
-                      </Table.Cell>
-                      <Table.Cell className="text-2xl">
-                        {" "}
-                        <p className="">
-                          {_order?.createdTime.substring(0, 10)}
-                        </p>
-                      </Table.Cell>
-
-                      <Table.Cell className={styleStatus}>
-                        <div className="flex flex-grow justify-between text-xl font-bold">
-                          {/* {stringStatus(_order.orderStatusString)} */}
-                          {_order.typeString === "Return" ? (
-                            <span className="text-white uppercase font-bold text-xl bg-green-500 p-2 rounded-lg">
-                              Yêu cầu trả hàng
-                            </span>
-                          ) : (
-                            <span className="text-white uppercase font-bold text-xl bg-gray-500 p-2 rounded-lg">
-                              Yêu cầu đổi hàng
-                            </span>
-                          )}
-                        </div>
-                      </Table.Cell>
-                      <Table.Cell className="space-x-3">
-                        {_order.orderStatus === 12 ||
-                        _order.orderStatus === 15 ||
-                        _order.orderStatus === 18 ? (
-                          <div>
-                            <Button
-                              type="link"
-                              // disabled={displayCancelBtn}
-                              id={_order.id}
-                              onClick={() => {
-                                handleApprove(_order);
-                              }}
-                              className={clsx(
-                                "bg-green-500 text-xl font-medium rounded-lg  text-white m-2",
-                              )}
-                            >
-                              Chấp nhận yêu cầu
-                            </Button>
-                            <Modal
-                              title="Chọn shipper giao hàng"
-                              // open={open}
-                              onOk={() => {
-                                handleApprove(_order);
-                              }}
-                              confirmLoading={confirmLoading}
-                              onCancel={handleCancelModal}
-                            >
-                              <p>{modalText}</p>
-                              <Select
-                                defaultValue={chooseShipper}
-                                style={{ width: 120 }}
-                                onChange={(itemValue) =>
-                                  setChooseShipper(itemValue)
+              return (
+                <>
+                  <Table.Row
+                    key={_order.ubOrderId}
+                    className=" dark:border-gray-700 dark:bg-gray-800 overflow-hidden"
+                  >
+                    <Table.Cell className="text-blue-400 text-2xl">
+                      #{_order.ubOrderId}
+                    </Table.Cell>
+                    <Table.Cell className="text-blue-400 hover:text-blue-700 select-none text-2xl">
+                      <Button
+                        type="link"
+                        className="p-0"
+                        onClick={() =>
+                          setOrderDetail((current) => {
+                            return current.index === index
+                              ? {
+                                  index: -1,
+                                  id: _order.orderId,
                                 }
-                                options={shippers.data.data.map((shipper) => ({
-                                  value: shipper.id.toString(),
-                                  label: shipper.fullName,
-                                }))}
-                              />
-                            </Modal>
-                          </div>
-                        ) : null}
+                              : {
+                                  index,
+                                  id: _order.orderId,
+                                };
+                          })
+                        }
+                      >
+                        Xem chi tiết
+                      </Button>
+                    </Table.Cell>
+                    <Table.Cell className="text-2xl">
+                      {_order?.quantity}
+                    </Table.Cell>
+                    <Table.Cell className="text-red-400 text-2xl">
+                      {_order?.mainCauseString}
+                    </Table.Cell>
+                    <Table.Cell className="text-2xl">
+                      {" "}
+                      <p className="">{_order?.createdTime.substring(0, 10)}</p>
+                    </Table.Cell>
+
+                    <Table.Cell className={styleStatus}>
+                      <div className="flex flex-grow justify-between text-xl font-bold">
+                        {/* {stringStatus(_order.orderStatusString)} */}
+                        {_order.typeString === "Return" ? (
+                          <span className="text-white uppercase font-bold text-xl bg-green-500 p-2 rounded-lg">
+                            Yêu cầu trả hàng
+                          </span>
+                        ) : (
+                          <span className="text-white uppercase font-bold text-xl bg-gray-500 p-2 rounded-lg">
+                            Yêu cầu đổi hàng
+                          </span>
+                        )}
+                      </div>
+                    </Table.Cell>
+                    <Table.Cell className="space-x-3">
+                      {_order.orderStatus === 12 ||
+                      _order.orderStatus === 15 ||
+                      _order.orderStatus === 18 ? (
+                        <div>
+                          <Button
+                            type="link"
+                            // disabled={displayCancelBtn}
+                            id={_order.id}
+                            onClick={() => {
+                              handleApprove(_order);
+                            }}
+                            className={clsx(
+                              "bg-green-500 text-xl font-medium rounded-lg  text-white m-2",
+                            )}
+                          >
+                            Chấp nhận yêu cầu
+                          </Button>
+                          <Modal
+                            title="Chọn shipper giao hàng"
+                            // open={open}
+                            onOk={() => {
+                              handleApprove(_order);
+                            }}
+                            confirmLoading={confirmLoading}
+                            onCancel={handleCancelModal}
+                          >
+                            <p>{modalText}</p>
+                            <Select
+                              defaultValue={chooseShipper}
+                              style={{ width: 120 }}
+                              onChange={(itemValue) =>
+                                setChooseShipper(itemValue)
+                              }
+                              options={shippers.data.data.map((shipper) => ({
+                                value: shipper.id.toString(),
+                                label: shipper.fullName,
+                              }))}
+                            />
+                          </Modal>
+                        </div>
+                      ) : null}
+                    </Table.Cell>
+                  </Table.Row>
+                  {displayDetail && (
+                    <Table.Row>
+                      <Table.Cell className="" colSpan={7}>
+                        <OrderDetail
+                          order={_order}
+                          displayDetail={displayDetail}
+                          setOrderDetail={setOrderDetail}
+                          index={index}
+                        />
                       </Table.Cell>
                     </Table.Row>
-                    {displayDetail && (
-                      <Table.Row>
-                        <Table.Cell className="" colSpan={7}>
-                          <OrderDetail
-                            order={_order}
-                            displayDetail={displayDetail}
-                            setOrderDetail={setOrderDetail}
-                            index={index}
-                          />
-                        </Table.Cell>
-                      </Table.Row>
-                    )}
-                  </>
-                );
-              })}
+                  )}
+                </>
+              );
+            })}
           </Table.Body>
         </Table>
       )}
