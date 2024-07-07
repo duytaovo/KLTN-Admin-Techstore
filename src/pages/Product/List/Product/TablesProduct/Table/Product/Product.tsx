@@ -138,7 +138,7 @@ export default function Product({ product, slug, idCategory }: Props) {
               {product.name}
             </div>
             <div className="mt-3 flex items-center">
-              <div className="max-w-[50%] truncate text-blue-500 line-through">
+              <div className="max-w-[50%] truncate text-blue-500 line-through mr-4">
                 <span className="text-xl">
                   đ{formatCurrency(product.lstProductTypeAndPrice[0]?.price)}
                 </span>

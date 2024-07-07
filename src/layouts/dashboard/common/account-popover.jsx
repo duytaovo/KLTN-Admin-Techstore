@@ -47,6 +47,7 @@ export default function AccountPopover() {
       <IconButton
         onClick={handleOpen}
         sx={{
+          fontSize: 16,
           width: 40,
           height: 40,
           background: (theme) => alpha(theme.palette.grey[500], 0.08),
@@ -84,11 +85,11 @@ export default function AccountPopover() {
           },
         }}
       >
-        <Box sx={{ my: 1.5, px: 2 }}>
-          <Typography variant="subtitle2" noWrap>
+        <Box sx={{ my: 1.5, px: 2, fontSize: 16 }}>
+          <Typography fontSize={"16px"} noWrap className="text-[16px]">
             {account.displayName}
           </Typography>
-          <Typography variant="body2" sx={{ color: "text.secondary" }} noWrap>
+          <Typography noWrap fontSize={"13px"} className="text-[16px]">
             {account.email}
           </Typography>
         </Box>

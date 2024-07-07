@@ -48,6 +48,8 @@ export default function UserPage() {
     dispatch(getUsers({ pageNumber: page }));
   }, [page]);
   const users = user?.data?.data;
+  console.log(users);
+
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === "asc";
     if (id !== "") {
@@ -113,7 +115,7 @@ export default function UserPage() {
         justifyContent="space-between"
         mb={5}
       >
-        <Typography variant="h4">Users</Typography>
+        <Typography variant="h4">Người dùng</Typography>
 
         <Button
           onClick={() => navigate(path.usersNew)}
@@ -152,10 +154,10 @@ export default function UserPage() {
                   headLabel={[
                     { id: "name", label: "Tên" },
                     { id: "phoneNumber", label: "Số điện thoại" },
-                    { id: "email", label: "Email" },
+                    // { id: "email", label: "Email" },
                     { id: "gender", label: "Giới tính" },
                     { id: "role", label: "Vai trò" },
-                    { id: "isVerified", label: "Verified", align: "center" },
+                    // { id: "isVerified", label: "Verified", align: "center" },
                     { id: "status", label: "Status" },
                     { id: "" },
                   ]}

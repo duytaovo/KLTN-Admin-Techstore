@@ -14,6 +14,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import { ArrowRight as ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
 
 const statusMap = {
   pending: { label: "Pending", color: "warning" },
@@ -50,18 +51,26 @@ export function LatestOrders({
   orders = [],
   sx,
 }: LatestOrdersProps): React.JSX.Element {
+  const navigate = useNavigate();
   return (
     <Card sx={sx}>
-      <CardHeader title="Đơn hàng mới nhất" />
+      <div className="flex justify-between mb-5 items-center">
+        <CardHeader title="Đơn hàng mới nhất" />
+        <CardHeader
+          title="Xem thêm"
+          className="hover:text-blue-500 cursor-pointer"
+          onClick={() => navigate("/orders")}
+        />
+      </div>
       <Divider />
       <Box sx={{ overflowX: "auto" }}>
         <Table sx={{}}>
           <TableHead>
             <TableRow>
-              <TableCell>Order</TableCell>
-              <TableCell>Customer</TableCell>
-              <TableCell sortDirection="desc">Date</TableCell>
-              <TableCell>Status</TableCell>
+              <TableCell>Id</TableCell>
+              <TableCell>Tên khách hàng</TableCell>
+              <TableCell sortDirection="desc">Ngày đặt</TableCell>
+              <TableCell>Trạng thái</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

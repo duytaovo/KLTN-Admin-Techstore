@@ -113,7 +113,7 @@ export default function BrandPage() {
         justifyContent="space-between"
         mb={5}
       >
-        <Typography variant="h4">Brands</Typography>
+        <Typography variant="h4">Nhãn hiệu</Typography>
 
         <Button
           onClick={() => navigate(path.brandNew)}
@@ -121,7 +121,7 @@ export default function BrandPage() {
           color="inherit"
           startIcon={<Iconify icon="eva:plus-fill" />}
         >
-          New Brand
+          Thêm mới
         </Button>
       </Stack>
 

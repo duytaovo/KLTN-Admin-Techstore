@@ -117,7 +117,7 @@ export default function VoucherPage() {
           color="inherit"
           startIcon={<Iconify icon="eva:plus-fill" />}
         >
-          New Voucher
+          Thêm mới
         </Button>
       </Stack>
 

@@ -11,7 +11,6 @@ import TableCell from "@mui/material/TableCell";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 
-import Label from "src/components/label";
 import Iconify from "src/components/iconify";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
@@ -43,17 +42,25 @@ export default function UserTableRow({
   };
 
   const handleDelete = async () => {
-    const res = await dispatch(deleteBrand(row.stt));
-    unwrapResult(res);
-    const d = res?.payload;
-    if (d?.status !== 200) return toast.error(d?.message);
-    await toast.success("Xóa nhãn hiệu thành công ");
-    dispatch(getBrands({ pageNumber: currentPage, pageSize: 10 }));
+    if (confirm("Bạn có muốn disable nhãn hiệu không ?")) {
+      const res = await dispatch(deleteBrand(row.stt));
+      unwrapResult(res);
+      const d = res?.payload;
+      if (d?.status !== 200) return toast.error(d?.message);
+      await toast.success("Xóa nhãn hiệu thành công ");
+      dispatch(getBrands({ pageNumber: currentPage, pageSize: 10 }));
+    }
   };
 
   return (
     <>
-      <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
+      <TableRow
+        className="overflow-scroll max-w-[90%]"
+        hover
+        tabIndex={-1}
+        role="checkbox"
+        selected={selected}
+      >
         <TableCell padding="checkbox">
           <Checkbox disableRipple checked={selected} onChange={handleClick} />
         </TableCell>

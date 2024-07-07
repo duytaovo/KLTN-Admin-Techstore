@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { Table } from "flowbite-react";
 import OrderDetail from "./OrderDetail";
 import "./table.scss";
@@ -32,6 +32,10 @@ import Skeleton from "src/components/Skeleton";
 import { getShippers } from "src/store/managerShipper/orderSlice";
 import { orderApi } from "src/api/order/orderApi.api";
 import { putChangeDelivering } from "src/store/returnChange/returnChangeSlice";
+import { Input, Row, Col } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
+
+const { Option } = Select;
 const data = [
   {
     id: 1,
@@ -207,6 +211,13 @@ const Order = ({ title }: { title?: string }) => {
     }
   };
 
+  const [methodSearch, setMethodSearch] = useState<string>("customerAddress");
+  const [searchValueIdShipping, setSearchValueIdShipping] =
+    useState<string>("");
+  const [searchValueName, setSearchValueName] = useState<string>("");
+  const [searchValueAddress, setSearchValueAddress] = useState<string>("");
+  const [searchValueProduct, setSearchValueProduct] = useState<string>("");
+
   const loading = useAppSelector((state) => state.loading.loading);
   const [chooseShipper, setChooseShipper] = useState("");
   const { shippers } = useAppSelector((state) => state.manageShipper);
@@ -226,16 +237,15 @@ const Order = ({ title }: { title?: string }) => {
   const [area, setArea] = useState("");
   const [filteredShippers, setFilteredShippers] = useState<Shipper[]>([]);
   const [orderCounts, setOrderCounts] = useState<Record<number, number>>({});
+  console.log(area);
   useEffect(() => {
     const filterShippers = () => {
-      // Tách địa chỉ giao hàng thành các từ khóa
       const keywords = area.split(/,?\s+/);
       const matchingShippers = shippers.data.data.filter((shipper) =>
         keywords.some((keyword) =>
-          shipper.areaSign.toLowerCase().includes(keyword.toLowerCase()),
+          shipper.areaSign.includes(keyword),
         ),
       );
-      console.log(matchingShippers);
       setFilteredShippers(matchingShippers);
     };
 
@@ -299,7 +309,6 @@ const Order = ({ title }: { title?: string }) => {
   );
 
   const showModalChooShipper = (order: any) => {
-    console.log(order);
     setOpen(true);
     setArea(order.addressReceiver);
   };
@@ -340,7 +349,11 @@ const Order = ({ title }: { title?: string }) => {
     setDataFilterLocal(separatedArrays);
   }, [filter]);
 
-  // Kết quả
+  const handleSearchValueIdShipping = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setSearchValueIdShipping(e.target.value);
+  };
   if (dataFilterLocal) {
     var {
       "Trạng thái đơn hàng": Trangthaidonhang,
@@ -353,19 +366,127 @@ const Order = ({ title }: { title?: string }) => {
   const TrangthaidonhangNumber: number[] = Trangthaidonhang?.map(
     (str: string) => parseInt(str, 10),
   );
+  const bodyGetData = {
+    shippingId: searchValueIdShipping || null,
+    completeDateFrom: null,
+    completeDateTo: null,
+    orderStatus: TrangthaidonhangNumber ? TrangthaidonhangNumber : [],
+    buyDateFrom: value[0]?.format("YYYY-MM-DD") || null,
+    buyDateTo: value[1]?.format("YYYY-MM-DD") || null,
+    paymentStatus: PhuongthucthanhtoanNumber ? PhuongthucthanhtoanNumber : [],
+    productName: searchValueProduct || null,
+    customerName: searchValueName || null,
+    customerAddress: searchValueAddress || null,
+  };
+  const handleSearchValueName = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValueName(e.target.value);
+  };
+
+  const handleSearchValueAddress = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValueAddress(e.target.value);
+  };
+
+  const handleSearchValueProduct = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValueProduct(e.target.value);
+  };
+
+  const handleNavigationToSearchResult = useCallback(() => {
+    // Implement the navigation to search results
+    dispatch(
+      getOrders({
+        body: bodyGetData,
+        params: { pageNumber: currentPage, pageSize: 10 },
+      }),
+    );
+  }, [
+    searchValueAddress,
+    searchValueIdShipping,
+    searchValueName,
+    searchValueProduct,
+  ]);
+  console.log(methodSearch);
+
+  const clearAllSearchValues = () => {
+    setSearchValueAddress("");
+    setSearchValueName("");
+    setSearchValueProduct("");
+    setSearchValueIdShipping("");
+  };
+
+  const getInputField = () => {
+    switch (methodSearch) {
+      case "customerIdShipping":
+        return (
+          <Input
+            size="middle"
+            value={searchValueIdShipping}
+            onChange={handleSearchValueIdShipping}
+            placeholder="Tìm kiếm..."
+            suffix={
+              <Button
+                type="link"
+                onClick={handleNavigationToSearchResult}
+                icon={<SearchOutlined />}
+              />
+            }
+          />
+        );
+      case "customerName":
+        return (
+          <Input
+            size="middle"
+            value={searchValueName}
+            onChange={handleSearchValueName}
+            placeholder="Tìm kiếm..."
+            suffix={
+              <Button
+                type="link"
+                onClick={handleNavigationToSearchResult}
+                icon={<SearchOutlined />}
+              />
+            }
+          />
+        );
+      case "customerAddress":
+        return (
+          <Input
+            height={10}
+            size="middle"
+            value={searchValueAddress}
+            onChange={handleSearchValueAddress}
+            placeholder="Tìm kiếm..."
+            suffix={
+              <Button
+                type="link"
+                onClick={handleNavigationToSearchResult}
+                icon={<SearchOutlined />}
+              />
+            }
+          />
+        );
+      default:
+        return (
+          <Input
+            size="middle"
+            value={searchValueProduct}
+            onChange={handleSearchValueProduct}
+            placeholder="Tìm kiếm..."
+            suffix={
+              <Button
+                type="link"
+                onClick={handleNavigationToSearchResult}
+                icon={<SearchOutlined />}
+              />
+            }
+          />
+        );
+    }
+  };
+
+  // Kết quả
+
   useEffect(() => {
-    const body = {
-      shippingId: null,
-      completeDateFrom: null,
-      completeDateTo: null,
-      productName: null,
-      customerName: null,
-      customerAddress: null,
-      orderStatus: TrangthaidonhangNumber ? TrangthaidonhangNumber : [],
-      buyDateFrom: value[0]?.format("YYYY-MM-DD") || null,
-      buyDateTo: value[1]?.format("YYYY-MM-DD") || null,
-      paymentStatus: PhuongthucthanhtoanNumber ? PhuongthucthanhtoanNumber : [],
-    };
+    const body = bodyGetData;
     dispatch(
       getShippers({
         params: { pageNumber: currentPage, pageSize: 100 },
@@ -384,20 +505,7 @@ const Order = ({ title }: { title?: string }) => {
       const res = await dispatch(putOrderConfirm(id));
       const data = await res.payload;
       if (data?.data?.code === 200) {
-        const body = {
-          shippingId: null,
-          completeDateFrom: null,
-          completeDateTo: null,
-          productName: null,
-          customerName: null,
-          customerAddress: null,
-          orderStatus: TrangthaidonhangNumber ? TrangthaidonhangNumber : [],
-          buyDateFrom: value[0]?.format("YYYY-MM-DD") || null,
-          buyDateTo: value[1]?.format("YYYY-MM-DD") || null,
-          paymentStatus: PhuongthucthanhtoanNumber
-            ? PhuongthucthanhtoanNumber
-            : [],
-        };
+        const body = bodyGetData;
         await dispatch(
           getOrders({
             body: body,
@@ -420,20 +528,7 @@ const Order = ({ title }: { title?: string }) => {
       const data = res.payload;
 
       if (data?.data?.code === 200) {
-        const body = {
-          shippingId: null,
-          completeDateFrom: null,
-          completeDateTo: null,
-          productName: null,
-          customerName: null,
-          customerAddress: null,
-          orderStatus: TrangthaidonhangNumber ? TrangthaidonhangNumber : [],
-          buyDateFrom: value[0]?.format("YYYY-MM-DD") || null,
-          buyDateTo: value[1]?.format("YYYY-MM-DD") || null,
-          paymentStatus: PhuongthucthanhtoanNumber
-            ? PhuongthucthanhtoanNumber
-            : [],
-        };
+        const body = bodyGetData;
         await dispatch(
           getOrders({
             body: body,
@@ -455,20 +550,7 @@ const Order = ({ title }: { title?: string }) => {
       const res: any = await dispatch(putOrderApprove(id));
       const data = res.payload;
       if (data?.data?.code === 200) {
-        const body = {
-          shippingId: null,
-          completeDateFrom: null,
-          completeDateTo: null,
-          productName: null,
-          customerName: null,
-          customerAddress: null,
-          orderStatus: TrangthaidonhangNumber ? TrangthaidonhangNumber : [],
-          buyDateFrom: value[0]?.format("YYYY-MM-DD") || null,
-          buyDateTo: value[1]?.format("YYYY-MM-DD") || null,
-          paymentStatus: PhuongthucthanhtoanNumber
-            ? PhuongthucthanhtoanNumber
-            : [],
-        };
+        const body = bodyGetData;
         await dispatch(
           getOrders({
             body: body,
@@ -492,20 +574,7 @@ const Order = ({ title }: { title?: string }) => {
       );
       const data = res.payload;
       if (data?.data?.code === 200) {
-        const body = {
-          shippingId: null,
-          completeDateFrom: null,
-          completeDateTo: null,
-          productName: null,
-          customerName: null,
-          customerAddress: null,
-          orderStatus: TrangthaidonhangNumber ? TrangthaidonhangNumber : [],
-          buyDateFrom: value[0]?.format("YYYY-MM-DD") || null,
-          buyDateTo: value[1]?.format("YYYY-MM-DD") || null,
-          paymentStatus: PhuongthucthanhtoanNumber
-            ? PhuongthucthanhtoanNumber
-            : [],
-        };
+        const body = bodyGetData;
         await dispatch(
           getOrders({
             body: body,
@@ -527,20 +596,7 @@ const Order = ({ title }: { title?: string }) => {
       const res: any = await dispatch(putOrderReject(id));
       const data = res.payload;
       if (data?.data?.code === 200) {
-        const body = {
-          shippingId: null,
-          completeDateFrom: null,
-          completeDateTo: null,
-          productName: null,
-          customerName: null,
-          customerAddress: null,
-          orderStatus: TrangthaidonhangNumber ? TrangthaidonhangNumber : [],
-          buyDateFrom: value[0]?.format("YYYY-MM-DD") || null,
-          buyDateTo: value[1]?.format("YYYY-MM-DD") || null,
-          paymentStatus: PhuongthucthanhtoanNumber
-            ? PhuongthucthanhtoanNumber
-            : [],
-        };
+        const body = bodyGetData;
         await dispatch(
           getOrders({
             body: body,
@@ -560,20 +616,7 @@ const Order = ({ title }: { title?: string }) => {
       const res: any = await dispatch(putOrderSuccess(id));
       const data = res.payload;
       if (data?.data?.code === 200) {
-        const body = {
-          shippingId: null,
-          completeDateFrom: null,
-          completeDateTo: null,
-          productName: null,
-          customerName: null,
-          customerAddress: null,
-          orderStatus: TrangthaidonhangNumber ? TrangthaidonhangNumber : [],
-          buyDateFrom: value[0]?.format("YYYY-MM-DD") || null,
-          buyDateTo: value[1]?.format("YYYY-MM-DD") || null,
-          paymentStatus: PhuongthucthanhtoanNumber
-            ? PhuongthucthanhtoanNumber
-            : [],
-        };
+        const body = bodyGetData;
         await dispatch(
           getOrders({
             body: body,
@@ -593,20 +636,7 @@ const Order = ({ title }: { title?: string }) => {
       const res: any = await dispatch(putOrderCancel(id));
       const data = res.payload;
       if (data?.data?.code === 200) {
-        const body = {
-          shippingId: null,
-          completeDateFrom: null,
-          completeDateTo: null,
-          productName: null,
-          customerName: null,
-          customerAddress: null,
-          orderStatus: TrangthaidonhangNumber ? TrangthaidonhangNumber : [],
-          buyDateFrom: value[0]?.format("YYYY-MM-DD") || null,
-          buyDateTo: value[1]?.format("YYYY-MM-DD") || null,
-          paymentStatus: PhuongthucthanhtoanNumber
-            ? PhuongthucthanhtoanNumber
-            : [],
-        };
+        const body = bodyGetData;
         await dispatch(
           getOrders({
             body: body,
@@ -626,20 +656,7 @@ const Order = ({ title }: { title?: string }) => {
       const res: any = await dispatch(putOrderFailed(id));
       const data = res.payload;
       if (data?.data?.code === 200) {
-        const body = {
-          shippingId: null,
-          completeDateFrom: null,
-          completeDateTo: null,
-          productName: null,
-          customerName: null,
-          customerAddress: null,
-          orderStatus: TrangthaidonhangNumber ? TrangthaidonhangNumber : [],
-          buyDateFrom: value[0]?.format("YYYY-MM-DD") || null,
-          buyDateTo: value[1]?.format("YYYY-MM-DD") || null,
-          paymentStatus: PhuongthucthanhtoanNumber
-            ? PhuongthucthanhtoanNumber
-            : [],
-        };
+        const body = bodyGetData;
         await dispatch(
           getOrders({
             body: body,
@@ -733,7 +750,7 @@ const Order = ({ title }: { title?: string }) => {
       </Helmet>
       <Button
         onClick={() => exportToExcel(order?.data?.data)}
-        type="primary"
+        type="link"
         icon={<DownloadOutlined />}
         size="small"
         className="text-blue-500 mb-2"
@@ -751,6 +768,32 @@ const Order = ({ title }: { title?: string }) => {
             onChange={(newValue) => setValue(newValue)}
           />
         </LocalizationProvider>
+      </div>
+      <div className="ml-5 mb-5">
+        <Row gutter={16}>
+          <Col span={4}>
+            <Select
+              value={methodSearch}
+              onChange={(value) => setMethodSearch(value)}
+              // style={{ width: 160 }}
+            >
+              <Option value="customerIdShipping">Tìm kiếm theo mã đơn</Option>
+              <Option value="customerName">Tìm kiếm theo tên</Option>
+              <Option value="customerAddress">Tìm kiếm theo địa chỉ</Option>
+              <Option value="productName">Tìm kiếm theo sản phẩm</Option>
+            </Select>
+          </Col>
+          <Col span={8}>{getInputField()}</Col>
+          <Col span={4}>
+            <Button
+              type="link"
+              // style={{ marginTop: 10 }}
+              onClick={clearAllSearchValues}
+            >
+              Xoá
+            </Button>
+          </Col>
+        </Row>
       </div>
       {loading > 0 ? (
         <Skeleton

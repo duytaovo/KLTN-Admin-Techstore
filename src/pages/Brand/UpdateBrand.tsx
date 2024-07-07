@@ -35,7 +35,7 @@ interface FormData {
 const UpdateBrand: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [brandDetail, setBrandDetail] = useState<any>();
-
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const {
     handleSubmit,
     formState: { errors },
@@ -50,24 +50,9 @@ const UpdateBrand: React.FC = () => {
   const [valueSlug, setValueSlug] = useState<
     { value: string; label: string; disabled?: boolean }[]
   >([]);
-  const [valueSelect, setValueSelect] = useState("");
+  const [valueSelect, setValueSelect] = useState<string[]>([]);
   const { categorySlug } = useAppSelector((state) => state.category);
 
-  // Tạo một mảng chứa các URL tạm thời cho ảnh
-  useEffect(() => {
-    dispatch(getCategorysSlug({ pageSize: 100 }));
-  }, []);
-  useEffect(() => {
-    const transformedArray = categorySlug?.data?.map((item: string) => {
-      // You can customize the label as needed
-      const label =
-        item.charAt(0).toUpperCase() + item.slice(1).replace(/-/g, " ");
-
-      return { value: item, label: label, disabled: false }; // You can set disabled based on your conditions
-    });
-
-    setValueSlug(transformedArray);
-  }, [categorySlug]);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
@@ -75,20 +60,41 @@ const UpdateBrand: React.FC = () => {
   const previewImage = useMemo(() => {
     return file ? URL.createObjectURL(file) : "";
   }, [file]);
-  // Tạo một mảng chứa các URL tạm thời cho ảnh
+
+  // Fetch category slugs
+  useEffect(() => {
+    dispatch(getCategorysSlug({ pageSize: 100 }));
+  }, [dispatch]);
+
+  // Transform category slugs for Select options
+  useEffect(() => {
+    const transformedArray = categorySlug?.data?.map((item: string) => {
+      const label =
+        item.charAt(0).toUpperCase() + item.slice(1).replace(/-/g, " ");
+      return { value: item, label: label, disabled: false };
+    });
+    setValueSlug(transformedArray);
+  }, [categorySlug]);
+
+  // Fetch brand details
+  // Lấy chi tiết thương hiệu
   useEffect(() => {
     dispatch(getDetailbrand(id))
       .then(unwrapResult)
       .then((res) => {
         setBrandDetail(res.data.data);
+        setValueSelect(res.data.data.slug); // Cập nhật valueSelect từ slug
       });
-  }, []);
+  }, [dispatch, id]);
 
+  // Update default form values when brand detail changes
   useEffect(() => {
-    setValue("address", brandDetail?.address);
-    setValue("slug", brandDetail?.slug);
-    setValue("name", brandDetail?.name);
-  }, [brandDetail]);
+    if (brandDetail) {
+      setValue("address", brandDetail?.address);
+      setValue("name", brandDetail?.name);
+    }
+  }, [brandDetail, setValue]);
+
   const onSubmit = handleSubmit(async (data) => {
     let images;
 
@@ -101,22 +107,21 @@ const UpdateBrand: React.FC = () => {
       images = d[0].fileUrl;
       setValue("imageUrl", d[0].fileUrl);
     }
+
     const body = JSON.stringify({
       name: data.name,
       address: data.address,
       imageUrl: images,
-      slug: valueSelect || "",
+      slug: selectedBrands,
     });
 
     try {
       setIsSubmitting(true);
       const res = await dispatch(updateBrand({ id, body }));
       unwrapResult(res);
-      const d = res?.payload?.data;
-      // if (d?.code !== 200) return toast.error(d?.message);
-      await toast.success("Cập nhật thương hiệu thành công ");
+      toast.success("Cập nhật thương hiệu thành công ");
       await dispatch(getBrands({ pageNumber: 1 }));
-      await navigate(path.brand);
+      navigate(path.brand);
     } catch (error: any) {
       if (isAxiosUnprocessableEntityError<ErrorResponse<FormData>>(error)) {
         const formError = error.response?.data.data;
@@ -133,18 +138,23 @@ const UpdateBrand: React.FC = () => {
       setIsSubmitting(false);
     }
   });
+
   const onClickHuy = () => {
     reset();
   };
+
   const avatar = watch("imageUrl");
+
   const handleChangeFile = (file?: File) => {
     setFile(file);
   };
-  const handleChange = (value: string) => {
-    setValueSelect(value);
+
+  const handleBrandSelectChange = (values: string[]) => {
+    setSelectedBrands(values);
   };
+
   return (
-    <div className="bg-white shadow ">
+    <div className="bg-white shadow">
       <h2 className="font-bold m-4 text-2xl">Cập nhật thương hiệu</h2>
       <Form
         labelCol={{ span: 4 }}
@@ -171,9 +181,11 @@ const UpdateBrand: React.FC = () => {
         </Form.Item>
         <Form.Item label="Slug" name="slug" rules={[{ required: true }]}>
           <Select
-            defaultValue={brandDetail?.slug}
-            style={{ width: 120 }}
-            onChange={handleChange}
+            mode="multiple"
+            value={selectedBrands}
+            style={{ width: "100%" }}
+            placeholder="Chọn slug"
+            onChange={handleBrandSelectChange}
             options={valueSlug}
           />
         </Form.Item>
@@ -193,7 +205,7 @@ const UpdateBrand: React.FC = () => {
           valuePropName="fileList"
           getValueFromEvent={normFile}
         >
-          <div className="flex flex-col items-start ">
+          <div className="flex flex-col items-start">
             <div className="my-5 w-24 space-y-5 justify-between items-center">
               <img
                 src={previewImage || getAvatarUrl(avatar)}
@@ -202,11 +214,10 @@ const UpdateBrand: React.FC = () => {
               />
             </div>
             <InputFile onChange={handleChangeFile} />
-            <div className="mt-3  flex flex-col items-center text-red-500">
-              <div>Dụng lượng file tối đa 2 MB</div>
+            <div className="mt-3 flex flex-col items-center text-red-500">
+              <div>Dung lượng file tối đa 2 MB</div>
               <div>Định dạng:.JPEG, .PNG</div>
             </div>
-            {/* {errors.images?.message} */}
           </div>
         </Form.Item>
         <div className="flex justify-start">
@@ -236,5 +247,5 @@ const UpdateBrand: React.FC = () => {
   );
 };
 
-export default () => <UpdateBrand />;
+export default UpdateBrand;
 

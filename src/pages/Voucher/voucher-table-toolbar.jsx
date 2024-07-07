@@ -37,7 +37,7 @@ export default function VoucherTableToolbar({
         <OutlinedInput
           value={filterName}
           onChange={onFilterName}
-          placeholder="Search voucher..."
+          placeholder="Tìm kiếm ..."
           startAdornment={
             <InputAdornment position="start">
               <Iconify

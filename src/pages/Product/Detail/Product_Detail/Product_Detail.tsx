@@ -32,7 +32,7 @@ const ProductDetail: React.FC = () => {
     if (productDetail && productDetail?.lstProductImageUrl?.length > 0) {
       setActiveImage(productDetail?.lstProductImageUrl[0]);
     }
-  }, [productDetail, activeImage]);
+  }, [productDetail]);
 
   useEffect(() => {
     dispatch(getDetailProduct(params.idProduct));
@@ -220,6 +220,7 @@ const ProductDetail: React.FC = () => {
           onOk={handleOk}
           onCancel={handleCancel}
           centered
+          footer={null}
         >
           <div className="block space-y-2">
             <div className="flex justify-start align-baseline space-x-4">
@@ -263,10 +264,10 @@ const ProductDetail: React.FC = () => {
       <div className="mt-8">
         <div className="px-20 py-5 rounded-md">
           <div className=" bg-white p-4 shadow">
-            <div className="rounded bg-gray-50 p-4 text-lg capitalize text-slate-700">
+            <div className="rounded bg-gray-50 p-4 text-3xl capitalize text-slate-700">
               Mô tả sản phẩm
             </div>
-            <div className="mx-4 mb-4 mt-12 text-lg leading-loose">
+            <div className="mx-4 mb-4 mt-12 text-2xl leading-loose">
               <div
                 dangerouslySetInnerHTML={{
                   __html: DOMPurify.sanitize(productDetail?.description),
@@ -278,7 +279,9 @@ const ProductDetail: React.FC = () => {
       </div>
       <div className="px-20 py-10">
         <div className="">
-          <div className="uppercase text-gray-400">Đánh giá sản phẩm</div>
+          <div className="uppercase text-gray-400 text-3xl">
+            Đánh giá sản phẩm
+          </div>
           <RatingFeedback />
         </div>
       </div>

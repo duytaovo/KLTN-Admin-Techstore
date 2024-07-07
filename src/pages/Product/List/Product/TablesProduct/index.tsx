@@ -337,7 +337,7 @@ const TableProduct: React.FC = () => {
 
   return (
     <div className="mx-6">
-      <div className="w-full text-[24px] text-gray-500 mb-[10px] flex items-center justify-between">
+      <div className="w-full  text-[24px] text-gray-500 mb-[10px] flex items-center justify-between">
         <div>
           Quản lý sản phẩm
           <div className="flex items-center mt-4">
@@ -419,7 +419,7 @@ const TableProduct: React.FC = () => {
           className={undefined}
         />
       ) : (
-        <div className="mt-6 grid grid-cols-5 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 h-[80%] mb-10">
+        <div className="mt-4 grid grid-cols-5 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5  mb-10">
           {products?.data?.data?.map((_product: any) => (
             <div className="col-span-1" key={_product.id}>
               <Product
@@ -431,7 +431,7 @@ const TableProduct: React.FC = () => {
           ))}
         </div>
       )}
-      <div className="fixed bottom-12 mt-12 ">
+      <div className=" bottom-10 mt-12 ">
         <Pagination
           current={currentPage + 1}
           pageSize={pageSize}

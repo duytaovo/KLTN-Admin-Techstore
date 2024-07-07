@@ -119,3 +119,15 @@ input[type="number"]::-webkit-outer-spin-button {
 .css-1uoh5bq-MuiTableCell-root {
   font-size: 13px !important;
 }
+.simplebar-placeholder,
+.css-llkful-MuiTableRow-root,
+.css-wwwvm1-MuiTableRow-root {
+  display: none !important;
+}
+
+.ant-select-selector{
+  height: 42px !important;
+  text-align: center;
+  display: flex;
+  align-items: center;
+}

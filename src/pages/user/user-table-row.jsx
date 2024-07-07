@@ -59,7 +59,13 @@ export default function UserTableRow({
 
   return (
     <>
-      <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
+      <TableRow
+        className="overflow-scroll max-w-[90%]"
+        hover
+        tabIndex={-1}
+        role="checkbox"
+        selected={selected}
+      >
         <TableCell padding="checkbox">
           <Checkbox disableRipple checked={selected} onChange={handleClick} />
         </TableCell>
@@ -86,13 +92,14 @@ export default function UserTableRow({
         >
           {phoneNumber}
         </TableCell>
-        <TableCell
+        {/* <TableCell
           sx={{
             fontSize: "14px",
+            width: "90px",
           }}
         >
           {email}
-        </TableCell>
+        </TableCell> */}
         <TableCell
           sx={{
             fontSize: "14px",
@@ -109,14 +116,14 @@ export default function UserTableRow({
           {role === 5 ? "ADMIN" : "USER"}
         </TableCell>
 
-        <TableCell
+        {/* <TableCell
           sx={{
             fontSize: "14px",
           }}
           align="center"
         >
           {isVerified ? "Yes" : "No"}
-        </TableCell>
+        </TableCell> */}
 
         <TableCell
           sx={{

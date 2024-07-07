@@ -47,7 +47,7 @@ const UserTable = () => {
     { field: "role", headerName: "Vai trò", width: 110 },
     { field: "gender", headerName: "Giới tính", width: 100 },
     { field: "phoneNumber", headerName: "Số điện thoại", width: 150 },
-    { field: "email", headerName: "Email", flex: 1 },
+    { field: "email", headerName: "Email", width: 150 },
     { field: "status", headerName: "Trạng thái", flex: 1 },
     {
       field: "action",

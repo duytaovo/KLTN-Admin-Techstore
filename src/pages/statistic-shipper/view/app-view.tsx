@@ -23,6 +23,7 @@ import { format } from "date-fns";
 import { getOrders } from "src/store/order/orderSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { getShippers } from "src/store/managerShipper/orderSlice";
+import { toast } from "react-toastify";
 
 // ----------------------------------------------------------------------
 interface ProfitData {
@@ -69,6 +70,7 @@ const _statistic = {
   ],
   lastOrders: [{}],
 };
+
 export default function StatisticShipperView() {
   const [valueYear, setValueYear] = useState("2024");
   const refButton: any = useRef(null);
@@ -94,7 +96,7 @@ export default function StatisticShipperView() {
   const [isGettingData, setIsGettingData] = useState<boolean>(false);
   const [startDate, setStartDate] = useState(new Date("2024-06-01T00:00:00"));
   const [endDate, setEndDate] = useState(new Date(new Date()));
-  // new Date(`${valueYear}-05-09T00:00:00`),
+
   const calculateMonthlyProfits = (dailyProfits: number[], year: number) => {
     const monthlyProfitsArray: number[] = new Array(12).fill(0); // Tạo mảng 12 tháng với giá trị ban đầu là 0
 
@@ -180,46 +182,50 @@ export default function StatisticShipperView() {
   }, [dispatch, startDate, endDate, chooseShipper]);
 
   const calculateStats = () => {
-    // Tính tổng số đơn hàng đã giao thành công
-    const totalSuccessfulOrders = dataOrders?.data?.data?.filter(
-      (order: any) => order.orderStatus === 22,
-    );
-    const totalRejectOrders = dataOrders?.data?.data?.filter(
-      (order: any) => order.orderStatus === 0,
-    ).length;
+    if (startDate > endDate) {
+      toast.error("Ngày bắt đầu không thể lớn hơn ngày kết thúc");
+      return;
+    } else {
+      // Tính tổng số đơn hàng đã giao thành công
+      const totalSuccessfulOrders = dataOrders?.data?.data?.filter(
+        (order: any) => order.orderStatus === 22,
+      );
+      const totalRejectOrders = dataOrders?.data?.data?.filter(
+        (order: any) => order.orderStatus === 0,
+      ).length;
 
-    const totalFailedOrders = dataOrders?.data?.data?.filter(
-      (order: any) => order.orderStatus === -1,
-    ).length;
+      const totalFailedOrders = dataOrders?.data?.data?.filter(
+        (order: any) => order.orderStatus === -1,
+      ).length;
 
-    // Tính tổng số tiền gửi lại cho cửa hàng
-    const totalRefundToShop = totalSuccessfulOrders?.reduce(
-      (total: any, order: any) => total + order.orderPrice,
-      0,
-    );
+      // Tính tổng số tiền gửi lại cho cửa hàng
+      const totalRefundToShop = totalSuccessfulOrders?.reduce(
+        (total: any, order: any) => total + order.orderPrice,
+        0,
+      );
 
-    // Tính tổng doanh thu của shipper
-    const totalShippingRevenue = totalSuccessfulOrders?.reduce(
-      (total: any, order: any) => total + order.deliveryPrice,
-      0,
-    );
+      // Tính tổng doanh thu của shipper
+      const totalShippingRevenue = totalSuccessfulOrders?.reduce(
+        (total: any, order: any) => total + order.deliveryPrice,
+        0,
+      );
 
-    return {
-      totalSuccessfulOrders,
-      totalRefundToShop,
-      totalShippingRevenue,
-      totalRejectOrders,
-      totalFailedOrders,
-    };
+      return {
+        totalSuccessfulOrders,
+        totalRefundToShop,
+        totalShippingRevenue,
+        totalRejectOrders,
+        totalFailedOrders,
+      };
+    }
   };
 
-  const {
-    totalSuccessfulOrders,
-    totalRejectOrders,
-    totalRefundToShop,
-    totalShippingRevenue,
-    totalFailedOrders,
-  } = calculateStats();
+  const stats = calculateStats();
+  const totalSuccessfulOrders = stats?.totalSuccessfulOrders?.length || 0;
+  const totalRejectOrders = stats?.totalRejectOrders || 0;
+  const totalRefundToShop = stats?.totalRefundToShop || 0;
+  const totalShippingRevenue = stats?.totalShippingRevenue || 0;
+  const totalFailedOrders = stats?.totalFailedOrders || 0;
 
   const onChangeDayStart: DatePickerProps["onChange"] = (date, dateString) => {
     const _date = new Date(dateString + "T00:00:00");
@@ -290,7 +296,7 @@ export default function StatisticShipperView() {
         <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
             title={"Thu nhập"}
-            total={totalShippingRevenue?.toString()}
+            total={totalShippingRevenue.toString()}
             color="success"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
           />
@@ -298,7 +304,7 @@ export default function StatisticShipperView() {
         <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
             title={"Số tiền đã giao"}
-            total={totalRefundToShop?.toString()}
+            total={totalRefundToShop.toString()}
             color="success"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
           />
@@ -315,7 +321,7 @@ export default function StatisticShipperView() {
         <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
             title={"Đơn đã giao"}
-            total={totalSuccessfulOrders?.length?.toString()}
+            total={totalSuccessfulOrders.toString()}
             color="info"
             icon={
               <img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />
@@ -326,7 +332,7 @@ export default function StatisticShipperView() {
         <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
             title={"Đơn đã bị huỷ"}
-            total={totalRejectOrders?.toString()}
+            total={totalRejectOrders.toString()}
             color="warning"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_buy.png" />}
           />
@@ -335,7 +341,7 @@ export default function StatisticShipperView() {
         <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
             title={"Đơn giao thất bại"}
-            total={totalFailedOrders?.toString()}
+            total={totalFailedOrders.toString()}
             color="error"
             icon={
               <img alt="icon" src="/assets/icons/glass/ic_glass_message.png" />

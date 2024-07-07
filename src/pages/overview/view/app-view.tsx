@@ -19,6 +19,7 @@ import dayjs from "dayjs";
 import type { DatePickerProps } from "antd";
 import { Button, DatePicker } from "antd";
 import { StatisticBestSeller } from "src/components/statistic";
+import { toast } from "react-toastify";
 // ----------------------------------------------------------------------
 interface ProfitData {
   year: number;
@@ -163,6 +164,11 @@ export default function AppView() {
   }, [statistic]);
 
   const handleCalculateClick = () => {
+    if (startDate > endDate) {
+      toast.error("Ngày bắt đầu không thể lớn hơn ngày kết thúc");
+      return;
+    }
+
     const profitInRange = calculateInRange(
       statistic.profits[_index],
       startDate!,
@@ -267,7 +273,7 @@ export default function AppView() {
       <Grid container spacing={3}>
         <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
-            title="Tổng lợi nhuận"
+            title="Doanh thu trong thời gian này"
             total={statisticLocal?.totalProfits}
             color="success"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
@@ -306,7 +312,7 @@ export default function AppView() {
         </Grid>
         <Grid xs={12} md={6} lg={8}>
           <AppWebsiteVisits
-            title="Doanh thu"
+            title="Doanh thu theo tháng của năm"
             chart={{
               series: [
                 {

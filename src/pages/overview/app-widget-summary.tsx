@@ -23,6 +23,7 @@ export default function AppWidgetSummary({
       spacing={3}
       direction="row"
       sx={{
+        height: 150,
         px: 3,
         py: 5,
         borderRadius: 2,
