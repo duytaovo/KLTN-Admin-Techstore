@@ -14,9 +14,9 @@ import {
 import { useEffect, useState } from "react";
 import { CardHeader } from "@mui/material";
 import Scrollbar from "../scrollbar";
-import Label from "../label";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
+import Label from "../label/label";
 // ----------------------------------------------------------------------
 
 interface Product {
@@ -36,7 +36,6 @@ interface Props {
   dataBestSeller: DataEntry[]; // Đảm bảo rằng props nhận được có đúng kiểu dữ liệu
 }
 export default function StatisticBestSeller({ dataBestSeller }: Props) {
-  console.log(dataBestSeller);
   const [valueYear, setValueYear] = useState("2024");
   const [valueMonth, setValueMonth] = useState("1");
 
@@ -109,14 +108,9 @@ export default function StatisticBestSeller({ dataBestSeller }: Props) {
                 <TableRow key={index}>
                   <TableCell>
                     <Box sx={{ display: "flex", alignItems: "center" }}>
-                      <Avatar
-                        alt={row?.name}
-                        src={row?.imageUrl}
-                      />
+                      <Avatar alt={row?.name} src={row?.imageUrl} />
                       <Box sx={{ ml: 2 }}>
-                        <Typography variant="subtitle2">
-                          {row?.name}
-                        </Typography>
+                        <Typography variant="subtitle2">{row?.name}</Typography>
                         {/* Đảm bảo rằng bạn hiển thị thông tin phù hợp ở đây */}
                         {/* Ví dụ: row.product[index]?.description */}
                       </Box>
@@ -124,14 +118,14 @@ export default function StatisticBestSeller({ dataBestSeller }: Props) {
                   </TableCell>
                   <TableCell>{row?.totalOrder}</TableCell>
                   <TableCell align="right">
-                    <Label
+                    {/* <Label
                       // variant={
                       //   theme.palette.mode === "light" ? "ghost" : "filled"
                       // }
                       color={row?.totalOrder && "primary"}
                     >
                       {row?.totalOrder}
-                    </Label>
+                    </Label> */}
                   </TableCell>
                 </TableRow>
               ))}
