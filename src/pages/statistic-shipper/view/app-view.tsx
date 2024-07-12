@@ -160,7 +160,6 @@ export default function StatisticShipperView() {
     );
 
     unwrapResult(orders);
-    console.log(orders);
     setShowDataOrders(orders.payload.data);
   };
 

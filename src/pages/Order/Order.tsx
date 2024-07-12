@@ -1026,7 +1026,7 @@ const Order = ({ title }: { title?: string }) => {
                             "bg-red-300 text-xl font-medium rounded-lg  text-white m-2",
                           )}
                         >
-                          Đơn giao chính thức thất bại
+                          Đơn giao thất bại
                         </Button>
                       ) : _order.orderStatus === 20 ? (
                         <Button
