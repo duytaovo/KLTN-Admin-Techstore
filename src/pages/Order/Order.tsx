@@ -241,10 +241,9 @@ const Order = ({ title }: { title?: string }) => {
   useEffect(() => {
     const filterShippers = () => {
       const keywords = area.split(/,?\s+/);
-      const matchingShippers = shippers.data.data.filter((shipper) =>
-        keywords.some((keyword) =>
-          shipper.areaSign.includes(keyword),
-        ),
+      const matchingShippers = shippers?.data?.data?.filter(
+        (shipper) =>
+          keywords?.some((keyword) => shipper?.areaSign?.includes(keyword)),
       );
       setFilteredShippers(matchingShippers);
     };

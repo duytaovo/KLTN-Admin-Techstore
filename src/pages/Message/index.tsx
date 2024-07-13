@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { CiUser } from "react-icons/ci";
 import { InputLabel, MenuItem, Select } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "src/hooks/useRedux";
 import { getShippers } from "src/store/managerShipper/orderSlice";
@@ -22,7 +21,6 @@ export default function Message() {
   const { shippers } = useAppSelector((state) => state.manageShipper);
   const { userWithId } = useAppSelector((state) => state.user);
   const [showEmojiSelector, setShowEmojiSelector] = useState(false);
-  const [selectedMessages, setSelectedMessages] = useState([]);
   const [message, setMessage] = useState("");
   const [selectedImage, setSelectedImage] = useState("");
   const scrollViewRef: any = useRef(null);
